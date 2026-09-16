@@ -1,0 +1,30 @@
+# ---- Never commit: credentials / local environment -------------------------
+.env
+.env.*
+*.pem
+*.key
+*.p12
+.npmrc
+.vercel/
+
+# ---- Third-party / copyrighted reference material (local use only) ---------
+# Film stills, fan art and a watermarked film clip used only as visual reference.
+/GHOST_RIDER_REFERENCES/
+# Third-party prompt pack PDF.
+/PROMPT_PACK/
+
+# ---- Raw generation masters (hundreds of MB, exceed GitHub file limits) ------
+# Web-optimised renditions live in web/public/media and are committed.
+/assets/source/
+
+# ---- Local tooling ------------------------------------------------------------
+/.claude/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+
+# ---- Build output / dependencies (also covered by web/.gitignore) -----------
+node_modules/
+.next/
+/web/qa/

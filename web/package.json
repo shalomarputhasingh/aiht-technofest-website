@@ -1,0 +1,37 @@
+{
+  "name": "technofest-2026",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "content:extract": "node scripts/extract-content.mjs",
+    "content:audit": "node scripts/audit-content.mjs",
+    "media:encode": "node scripts/encode-media.mjs",
+    "qa:visual": "node scripts/visual-check.mjs ./qa",
+    "qa:mobile": "node scripts/visual-check.mjs ./qa http://localhost:3100 --mobile",
+    "qa:reduced": "node scripts/visual-check.mjs ./qa http://localhost:3100 --reduced",
+    "qa:fallback": "node scripts/fallback-check.mjs ./qa"
+  },
+  "dependencies": {
+    "gsap": "^3.15.0",
+    "next": "16.3.5",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "three": "^0.186.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/three": "^0.186.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.5",
+    "ffmpeg-static": "^5.3.0",
+    "puppeteer-core": "^25.11.0",
+    "sharp": "^0.35.4",
+    "typescript": "^5"
+  }
+}

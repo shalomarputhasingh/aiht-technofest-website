@@ -1,0 +1,11 @@
+# Normalise text to LF in the repository regardless of contributor OS.
+* text=auto eol=lf
+
+# Media and binary assets — never diff or convert.
+*.mp4  binary
+*.webp binary
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.ico  binary
+*.pdf  binary
