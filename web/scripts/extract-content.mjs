@@ -21,8 +21,10 @@ const FAQ_DATA = vm.runInNewContext(match[1]);
 
 const out = { CONFIG, TECHNICAL_EVENTS, NON_TECHNICAL_EVENTS, FAQ_DATA };
 
-if (TECHNICAL_EVENTS.length !== 9) throw new Error(`Expected 9 technical events, got ${TECHNICAL_EVENTS.length}`);
-if (NON_TECHNICAL_EVENTS.length !== 11) throw new Error(`Expected 11 non-technical events, got ${NON_TECHNICAL_EVENTS.length}`);
+// Guard against an accidentally truncated config: both categories must exist and ids must be unique.
+if (!TECHNICAL_EVENTS.length || !NON_TECHNICAL_EVENTS.length) throw new Error("config.js has an empty event category");
+const ids = [...TECHNICAL_EVENTS, ...NON_TECHNICAL_EVENTS].map((e) => e.id);
+if (new Set(ids).size !== ids.length) throw new Error("Duplicate event ids in config.js");
 
 const dest = resolve(here, "../src/content/source.json");
 writeFileSync(dest, JSON.stringify(out, null, 2) + "\n");

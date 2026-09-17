@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Big_Shoulders, JetBrains_Mono, Manrope } from "next/font/google";
+import { COUNTS } from "@/content/site";
 import "./globals.css";
 
 const display = Big_Shoulders({
@@ -49,7 +50,7 @@ export const metadata: Metadata = {
     type: "website",
     title: "Technofest 2026 | AIHT — Where Technology Meets Talent",
     description:
-      "Technofest 2026 at Anand Institute of Higher Technology, Chennai — 30 September 2026. 20 technical & non-technical events. Register now!",
+      `Technofest 2026 at Anand Institute of Higher Technology, Chennai — 30 September 2026. ${COUNTS.total} technical & non-technical events. Register now!`,
     siteName: "Technofest 2026 — AIHT",
     images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Technofest 2026" }],
   },

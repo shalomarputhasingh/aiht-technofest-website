@@ -29,6 +29,13 @@ export const ALL_EVENTS: (TechnofestEvent & { filterKey: Exclude<FilterKey, "all
   ...TECHNICAL_EVENTS.map((e) => ({ ...e, filterKey: "technical" as const })),
   ...NON_TECHNICAL_EVENTS.map((e) => ({ ...e, filterKey: "non-technical" as const })),
 ];
+/** Event counts are derived from the data so copy can never drift from the line-up. */
+export const COUNTS = {
+  technical: TECHNICAL_EVENTS.length,
+  nonTechnical: NON_TECHNICAL_EVENTS.length,
+  total: TECHNICAL_EVENTS.length + NON_TECHNICAL_EVENTS.length,
+};
+
 /** FAQ answers contain trusted inline markup (<strong>) from the source app.js. */
 export const FAQ_DATA = source.FAQ_DATA as { q: string; a: string }[];
 
@@ -92,7 +99,7 @@ export const HERO = {
   altTagline: "Innovate. Compete. Create.",
   date: "30 September 2026",
   description:
-    "An exciting college technical and non-technical fest bringing together innovation, competition, creativity and entertainment. 20 events. One unforgettable day.",
+    `An exciting college technical and non-technical fest bringing together innovation, competition, creativity and entertainment. ${COUNTS.total} events. One unforgettable day.`,
   ctaRegister: "Register Now",
   ctaExplore: "Explore Events",
 };
@@ -118,9 +125,9 @@ export const ABOUT = {
     ],
   ] as (string | { strong: string })[][],
   stats: [
-    { value: 9, label: "Technical Events" },
-    { value: 11, label: "Non-Technical Events" },
-    { value: 20, label: "Total Events" },
+    { value: COUNTS.technical, label: "Technical Events" },
+    { value: COUNTS.nonTechnical, label: "Non-Technical Events" },
+    { value: COUNTS.total, label: "Total Events" },
     { value: 1, label: "Day of Excitement" },
   ],
   highlights: [
@@ -135,15 +142,15 @@ export const EVENTS_SECTION = {
   label: "Explore the Competitions",
   titleA: "Discover",
   titleB: "Events",
-  subtitle: "20 exciting events across technical and non-technical categories. Find your challenge and register today.",
+  subtitle: `${COUNTS.total} exciting events across technical and non-technical categories. Find your challenge and register today.`,
   filters: [
     { key: "all" as FilterKey, label: "All Events" },
     { key: "technical" as FilterKey, label: "Technical" },
     { key: "non-technical" as FilterKey, label: "Non-Technical" },
   ],
   searchPlaceholder: "Search events…",
-  techHeading: "Technical Events — 9",
-  nontechHeading: "Non-Technical Events — 11",
+  techHeading: `Technical Events — ${COUNTS.technical}`,
+  nontechHeading: `Non-Technical Events — ${COUNTS.nonTechnical}`,
   noResults: "No events match your search. Try a different keyword.",
   viewDetails: "View Details",
 };

@@ -16,7 +16,7 @@ The original files in `../Source_Content/` are still the source of truth.
 1. Edit `Source_Content/config.js` (form URL, event date, events) or the FAQ in `Source_Content/app.js`.
 2. `npm run content:extract` regenerates `src/content/source.json` from those files. Event and FAQ data is never retyped by hand.
 3. Static page copy transcribed from `index.html` lives in `src/content/site.ts`.
-4. `npm start`, then `npm run content:audit`, checks that every visible text segment of the original `index.html`, all 20 events, all FAQs and all link destinations exist in the rendered page.
+4. `npm start`, then `npm run content:audit`, checks that every visible text segment of the original `index.html`, all events, all FAQs and all link destinations exist in the rendered page.
 
 If `GOOGLE_FORM_URL` is empty, every Register button shows the original "Registration coming soon!" notice instead of navigating.
 
