@@ -85,10 +85,13 @@ if (!same(extracted.TECHNICAL_EVENTS, TECHNICAL_EVENTS)) failures.push("[data] T
 if (!same(extracted.NON_TECHNICAL_EVENTS, NON_TECHNICAL_EVENTS)) failures.push("[data] NON_TECHNICAL_EVENTS differ from config.js");
 if (!same(extracted.FAQ_DATA, FAQ_DATA)) failures.push("[data] FAQ_DATA differs from app.js");
 
-if (TECHNICAL_EVENTS.length !== 9) failures.push(`[data] expected 9 technical events, found ${TECHNICAL_EVENTS.length}`);
-if (NON_TECHNICAL_EVENTS.length !== 11) failures.push(`[data] expected 11 non-technical events, found ${NON_TECHNICAL_EVENTS.length}`);
+// Counts shown in the original index.html must agree with the event data.
+for (const [label, n] of [["Technical Events — ", TECHNICAL_EVENTS.length], ["Non-Technical Events — ", NON_TECHNICAL_EVENTS.length]]) {
+  if (!original.includes(label + n)) failures.push(`[data] index.html heading "${label}…" does not match ${n} events in config.js`);
+}
+const allEvents = [...TECHNICAL_EVENTS, ...NON_TECHNICAL_EVENTS];
 
-for (const e of [...TECHNICAL_EVENTS, ...NON_TECHNICAL_EVENTS]) {
+for (const e of allEvents) {
   const missing = [e.name, e.description].filter((s) => !rendered.includes(norm(s)));
   if (missing.length) failures.push(`[event] ${e.id} missing: ${missing.join(" | ")}`);
   else pass.events++;
@@ -115,7 +118,7 @@ for (const id of ["hero", "countdown", "about", "events", "participation", "regi
 }
 
 console.log(
-  `copy segments ok: ${pass.text} (+${pass.conditional} state-dependent) | events ok: ${pass.events}/20 | faq ok: ${pass.faq}/${FAQ_DATA.length} | link destinations ok: ${pass.links}/${hrefs.size}`,
+  `copy segments ok: ${pass.text} (+${pass.conditional} state-dependent) | events ok: ${pass.events}/${allEvents.length} | faq ok: ${pass.faq}/${FAQ_DATA.length} | link destinations ok: ${pass.links}/${hrefs.size}`,
 );
 if (failures.length) {
   console.log(`\n${failures.length} FAILURE(S):`);
