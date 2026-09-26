@@ -39,5 +39,4 @@ export const CLIPS: Clip[] = [
 
 export const CLIP_INDEX = Object.fromEntries(CLIPS.map((c, i) => [c.id, i])) as Record<ClipId, number>;
 
-export const clipSrc = (id: ClipId, mobile: boolean) => `/media/${mobile ? "mobile" : "desktop"}/${id}.mp4`;
 export const posterSrc = (id: ClipId, edge: "start" | "end") => `/media/posters/${id}_${edge}.webp`;

@@ -1,0 +1,122 @@
+{
+  "c01_awakening": {
+    "desktop": {
+      "count": 97,
+      "fps": 12
+    },
+    "mobile": {
+      "count": 80,
+      "fps": 10
+    }
+  },
+  "c02_approach": {
+    "desktop": {
+      "count": 97,
+      "fps": 12
+    },
+    "mobile": {
+      "count": 80,
+      "fps": 10
+    }
+  },
+  "c03_mount": {
+    "desktop": {
+      "count": 97,
+      "fps": 12
+    },
+    "mobile": {
+      "count": 80,
+      "fps": 10
+    }
+  },
+  "c04_ignition": {
+    "desktop": {
+      "count": 97,
+      "fps": 12
+    },
+    "mobile": {
+      "count": 80,
+      "fps": 10
+    }
+  },
+  "c05_ride_city": {
+    "desktop": {
+      "count": 97,
+      "fps": 12
+    },
+    "mobile": {
+      "count": 80,
+      "fps": 10
+    }
+  },
+  "c06_ride_future": {
+    "desktop": {
+      "count": 97,
+      "fps": 12
+    },
+    "mobile": {
+      "count": 80,
+      "fps": 10
+    }
+  },
+  "c07_stop": {
+    "desktop": {
+      "count": 97,
+      "fps": 12
+    },
+    "mobile": {
+      "count": 80,
+      "fps": 10
+    }
+  },
+  "c08_watch": {
+    "desktop": {
+      "count": 97,
+      "fps": 12
+    },
+    "mobile": {
+      "count": 80,
+      "fps": 10
+    }
+  },
+  "c09_return": {
+    "desktop": {
+      "count": 97,
+      "fps": 12
+    },
+    "mobile": {
+      "count": 80,
+      "fps": 10
+    }
+  },
+  "c10_highway": {
+    "desktop": {
+      "count": 97,
+      "fps": 12
+    },
+    "mobile": {
+      "count": 80,
+      "fps": 10
+    }
+  },
+  "c11_highway_stop": {
+    "desktop": {
+      "count": 97,
+      "fps": 12
+    },
+    "mobile": {
+      "count": 80,
+      "fps": 10
+    }
+  },
+  "c12_skull": {
+    "desktop": {
+      "count": 97,
+      "fps": 12
+    },
+    "mobile": {
+      "count": 80,
+      "fps": 10
+    }
+  }
+}

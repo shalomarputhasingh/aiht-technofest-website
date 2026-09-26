@@ -1,32 +1,31 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CLIPS, CLIP_INDEX, clipSrc, posterSrc, type ClipId } from "@/lib/clips";
+import { CLIPS, CLIP_INDEX, posterSrc, type ClipId } from "@/lib/clips";
 import { director, INTRO_SHARE } from "@/lib/director";
 import { isReducedMotion, prefersLowData } from "@/lib/env";
+import { Sequence } from "@/lib/frames";
 import Embers from "./Embers";
 
 /**
- * Fixed, full-viewport film layer. Scroll choreography writes (clip, t) into the
- * director store; this component scrubs the matching <video> toward it.
+ * Fixed, full-viewport film layer.
  *
- * - Only the active clip and its neighbours hold a src (max 3 decoders).
- * - Seeks are rate-limited to one in-flight seek; the displayed time eases
- *   toward the target so trackpad jitter reads as camera inertia.
- * - Reduced motion, Save-Data or a video error fall back to the poster stills,
- *   which are the chained keyframes, so the story still reads.
+ * The film is a WebP frame sequence drawn to a canvas, not a <video>: scrolling
+ * picks an already-decoded frame instead of asking a decoder to seek, which is
+ * what made scrubbing stutter. Adjacent frames are cross-faded by the sub-frame
+ * remainder so motion stays smooth between discrete frames.
+ *
+ * Only the active clip and its neighbours keep frames in memory; the rest are
+ * released. Reduced-motion / Save-Data visitors get poster stills instead.
  */
 export default function CinemaStage() {
-  const rootRef = useRef<HTMLDivElement>(null);
-  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const posterRef = useRef<HTMLImageElement>(null);
   const shadeRef = useRef<HTMLDivElement>(null);
   const scrimRef = useRef<HTMLDivElement>(null);
-  // null until detected on the client, so no rendition is fetched before we know
-  // whether this is a phone (mobile/480p) or a reduced-motion / Save-Data visitor (stills).
+  // null until detected on the client, so no frames are fetched before we know
+  // whether this is a phone (smaller frames) or a reduced-motion / Save-Data visitor.
   const [env, setEnv] = useState<{ mobile: boolean; stillsOnly: boolean } | null>(null);
-  const mobile = env?.mobile ?? false;
-  const stillsOnly = env?.stillsOnly ?? false;
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
@@ -43,93 +42,119 @@ export default function CinemaStage() {
 
   useEffect(() => {
     if (!env) return;
-    const videos = videoRefs.current;
-    const failed = new Set<number>();
-    let raf = 0;
-    let active = -1;
-    let shown = 0; // eased time in seconds for the active clip
-    let lastPoster = "";
+    const canvas = canvasRef.current;
+    const poster = posterRef.current;
+    if (!canvas) return;
+    const variant = env.mobile ? "mobile" : "desktop";
+    const ctx = canvas.getContext("2d", { alpha: false });
 
-    /**
-     * Park an inactive neighbour on the frame it will be entered from (previous
-     * clip → last frame, next clip → first frame). Seeking forces the decoder to
-     * present that frame, so the hand-off at a clip boundary is instant instead
-     * of flashing black while the new element produces its first frame.
-     */
-    const park = (i: number) => {
-      const v = videos[i];
-      if (!v || i === active || !v.duration) return;
-      v.currentTime = i < active ? Math.max(0, v.duration - 0.05) : 0.001;
-    };
-
-    const attach = (i: number, on: boolean) => {
-      const v = videos[i];
-      if (!v) return;
-      const src = clipSrc(CLIPS[i].id, mobile);
-      if (on && !failed.has(i)) {
-        if (!v.getAttribute("src")) {
-          v.src = src;
-          v.preload = "auto";
-          v.addEventListener("loadedmetadata", () => park(i), { once: true });
-          v.load();
-        } else {
-          park(i);
+    if (env.stillsOnly || !ctx) {
+      // Stills mode: the chained keyframe posters still tell the whole story.
+      let raf = 0;
+      let last = "";
+      const tick = () => {
+        raf = requestAnimationFrame(tick);
+        const { clip, t, mood } = director.get();
+        if (shadeRef.current) shadeRef.current.style.opacity = String(mood.blackout);
+        if (scrimRef.current) scrimRef.current.style.opacity = String(mood.scrim);
+        const url = posterSrc(clip, t < 0.5 ? "start" : "end");
+        if (poster && last !== url) {
+          poster.src = url;
+          last = url;
         }
-      } else if (v.getAttribute("src")) {
-        v.removeAttribute("src");
-        v.load(); // releases the decoder + buffered data
+      };
+      raf = requestAnimationFrame(tick);
+      canvas.style.opacity = "0";
+      return () => cancelAnimationFrame(raf);
+    }
+
+    const seqs = new Map<number, Sequence>();
+
+    // The canvas is sized to the frame itself and blitted 1:1; CSS object-fit
+    // does the scale-to-viewport on the compositor, so per-frame cost is a small
+    // fixed copy instead of a full-screen rescale.
+    const fitCanvas = (img: HTMLImageElement) => {
+      if (canvas.width !== img.naturalWidth || canvas.height !== img.naturalHeight) {
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
       }
     };
 
-    const onError = (i: number) => () => failed.add(i);
-    const errorHandlers = videos.map((v, i) => {
-      const h = onError(i);
-      v?.addEventListener("error", h);
-      return h;
-    });
+    let raf = 0;
+    let active = -1;
+    let shown = 0; // eased frame position (fractional) within the active clip
+    let lastDir = 1;
+    let posterHidden = false;
 
     const tick = () => {
       raf = requestAnimationFrame(tick);
       const { clip, mood, intro } = director.get();
-      // The opening plays the first INTRO_SHARE of the awakening by itself; scroll owns the rest.
-      const t = clip === "c01_awakening" ? INTRO_SHARE * intro + (1 - INTRO_SHARE) * director.get().t : director.get().t;
+      const raw = director.get().t;
+      // The opening plays the first INTRO_SHARE of the awakening by itself.
+      const t = clip === "c01_awakening" ? INTRO_SHARE * intro + (1 - INTRO_SHARE) * raw : raw;
       const idx = CLIP_INDEX[clip as ClipId];
 
       if (shadeRef.current) shadeRef.current.style.opacity = String(mood.blackout);
       if (scrimRef.current) scrimRef.current.style.opacity = String(mood.scrim);
 
-      const poster = posterRef.current;
-      const edge = t < 0.5 ? "start" : "end";
-      const posterUrl = posterSrc(clip, edge);
-
       if (idx !== active) {
         active = idx;
-        for (let i = 0; i < CLIPS.length; i++) attach(i, !stillsOnly && Math.abs(i - idx) <= 1);
-        videos.forEach((v, i) => v?.classList.toggle("is-active", i === idx));
-        const v = videos[idx];
-        if (v && v.duration) {
-          shown = t * (v.duration - 0.05);
-          v.currentTime = shown; // always present a frame on activation
-        } else {
-          shown = 0;
+        for (const [i, seq] of seqs) {
+          if (Math.abs(i - idx) > 1) {
+            seq.dispose();
+            seqs.delete(i);
+          }
+        }
+        if (!seqs.has(idx)) seqs.set(idx, new Sequence(CLIPS[idx].id, variant));
+        shown = t * (seqs.get(idx)!.count - 1);
+      }
+
+      const seq = seqs.get(idx)!;
+      const target = t * (seq.count - 1);
+      const delta = target - shown;
+      if (Math.abs(delta) > 0.001) lastDir = Math.sign(delta);
+      // Ease toward the target so wheel/trackpad jitter reads as camera inertia.
+      shown += delta * 0.22;
+      if (Math.abs(target - shown) < 0.01) shown = target;
+
+      const base = Math.floor(shown);
+      const frac = shown - base;
+      seq.pump(Math.round(shown), lastDir);
+
+      const a = seq.at(base) ?? seq.nearest(base);
+      if (a) {
+        fitCanvas(a);
+        // Portrait screens crop a 16:9 frame hard, so keep the rider in view.
+        canvas.style.objectPosition = env.mobile ? CLIPS[idx].mobileFocus : "50% 50%";
+        ctx.drawImage(a, 0, 0);
+        // Blend the next frame in by the sub-frame remainder: smooths the step
+        // between discrete frames. Skipped while scrubbing fast (invisible then)
+        // and while the film is effectively paused.
+        const blending = frac > 0.03 && Math.abs(delta) < 1.5;
+        const b = blending ? seq.at(Math.min(seq.count - 1, base + 1)) : null;
+        if (b && b.naturalWidth === canvas.width) {
+          ctx.globalAlpha = frac;
+          ctx.drawImage(b, 0, 0);
+          ctx.globalAlpha = 1;
+        }
+        // Expose playhead state for QA tooling.
+        canvas.dataset.clip = CLIPS[idx].id;
+        canvas.dataset.frame = String(base);
+        if (!posterHidden && poster) {
+          poster.style.opacity = "0";
+          canvas.style.opacity = "1";
+          posterHidden = true;
         }
       }
 
-      const v = videos[idx];
-      const playable = !stillsOnly && v && !failed.has(idx) && v.readyState >= 2 && v.duration > 0;
-
-      if (playable) {
-        const target = t * (v.duration - 0.05);
-        shown += (target - shown) * 0.2;
-        if (Math.abs(target - shown) < 0.004) shown = target;
-        if (!v.seeking && Math.abs(v.currentTime - shown) > 1 / 60) v.currentTime = shown;
-        if (poster && poster.style.opacity !== "0") poster.style.opacity = "0";
-      } else if (poster) {
-        if (lastPoster !== posterUrl) {
-          poster.src = posterUrl;
-          lastPoster = posterUrl;
-        }
-        poster.style.opacity = "1";
+      // Warm the neighbouring chapter once this one is in hand.
+      if (seq.loadedCount() > seq.count * 0.6) {
+        const next = seqs.get(idx + 1);
+        const prev = seqs.get(idx - 1);
+        if (idx + 1 < CLIPS.length && !next) seqs.set(idx + 1, new Sequence(CLIPS[idx + 1].id, variant));
+        else if (next && !next.complete) next.pumpSequential(0);
+        else if (idx - 1 >= 0 && !prev) seqs.set(idx - 1, new Sequence(CLIPS[idx - 1].id, variant));
+        else if (prev && !prev.complete) prev.pumpSequential(prev.count - 1);
       }
     };
 
@@ -143,39 +168,21 @@ export default function CinemaStage() {
     return () => {
       cancelAnimationFrame(raf);
       document.removeEventListener("visibilitychange", onVisibility);
-      videos.forEach((v, i) => {
-        v?.removeEventListener("error", errorHandlers[i]);
-        if (v?.getAttribute("src")) {
-          v.removeAttribute("src");
-          v.load();
-        }
-      });
+      for (const seq of seqs.values()) seq.dispose();
+      seqs.clear();
     };
-  }, [env, mobile, stillsOnly]);
+  }, [env]);
 
   return (
-    <div ref={rootRef} className="stage" aria-hidden="true">
-      {/* eslint-disable-next-line @next/next/no-img-element -- dynamic poster swapped every frame */}
-      <img ref={posterRef} className="stage__poster" src={posterSrc("c01_awakening", "start")} alt="" decoding="async" />
-      {CLIPS.map((c, i) => (
-        <video
-          key={c.id}
-          ref={(el) => {
-            videoRefs.current[i] = el;
-          }}
-          className="stage__video"
-          style={{ ["--focus" as string]: c.mobileFocus }}
-          muted
-          playsInline
-          disablePictureInPicture
-          disableRemotePlayback
-          preload="none"
-          tabIndex={-1}
-        />
-      ))}
+    <div className="stage" aria-hidden="true">
+      {/* Poster is server-rendered, so the film has something to show before the
+          first frames decode — and it is the whole film without JS. */}
+      {/* eslint-disable-next-line @next/next/no-img-element -- swapped imperatively */}
+      <img ref={posterRef} className="stage__poster" src={posterSrc("c01_awakening", "start")} alt="" fetchPriority="high" />
+      <canvas ref={canvasRef} className="stage__canvas" />
       <div ref={scrimRef} className="stage__scrim" />
       <div className="stage__grade" />
-      <Embers reduced={!env || (stillsOnly && isReducedMotion())} />
+      <Embers reduced={!env || (env.stillsOnly && isReducedMotion())} />
       <div className="stage__vignette" />
       <div className="stage__grain" />
       <div ref={shadeRef} className="stage__shade" />

@@ -19,7 +19,7 @@ async function run(name, { args = [], js = true, blockVideo = false }, probe) {
   page.on("pageerror", (e) => errors.push(String(e)));
   if (blockVideo) {
     await page.setRequestInterception(true);
-    page.on("request", (r) => (r.url().endsWith(".mp4") ? r.abort() : r.continue()));
+    page.on("request", (r) => (r.url().includes("/media/frames/") ? r.abort() : r.continue()));
   }
   await page.goto(url, { waitUntil: "networkidle2" });
   await new Promise((r) => setTimeout(r, 5000));
@@ -63,12 +63,12 @@ await run("no-webgl", { args: ["--disable-webgl", "--disable-3d-apis"] }, async 
   }));
 });
 
-await run("video-blocked", { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"], blockVideo: true }, async (page) => {
-  await shot(page, "video-blocked", "about", 0.6);
+await run("frames-blocked", { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"], blockVideo: true }, async (page) => {
+  await shot(page, "frames-blocked", "about", 0.6);
   return page.evaluate(() => ({
-    posterOpacity: document.querySelector(".stage__poster").style.opacity,
+    posterOpacity: getComputedStyle(document.querySelector(".stage__poster")).opacity,
     posterSrc: document.querySelector(".stage__poster").getAttribute("src"),
-    activeVideoReady: document.querySelector(".stage__video.is-active")?.readyState ?? null,
+    canvasDrew: document.querySelector(".stage__canvas")?.dataset.frame ?? null,
   }));
 });
 
