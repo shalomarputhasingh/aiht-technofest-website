@@ -9,11 +9,11 @@
     "lint": "eslint",
     "content:extract": "node scripts/extract-content.mjs",
     "content:audit": "node scripts/audit-content.mjs",
-    "media:encode": "node scripts/encode-media.mjs",
     "qa:visual": "node scripts/visual-check.mjs ./qa",
     "qa:mobile": "node scripts/visual-check.mjs ./qa http://localhost:3100 --mobile",
     "qa:reduced": "node scripts/visual-check.mjs ./qa http://localhost:3100 --reduced",
-    "qa:fallback": "node scripts/fallback-check.mjs ./qa"
+    "qa:fallback": "node scripts/fallback-check.mjs ./qa",
+    "media:frames": "node scripts/encode-frames.mjs"
   },
   "dependencies": {
     "gsap": "^3.15.0",

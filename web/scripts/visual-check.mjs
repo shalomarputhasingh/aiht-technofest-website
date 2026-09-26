@@ -32,10 +32,10 @@ const settle = () =>
   page.evaluate(async () => {
     // wait until the active clip stops seeking toward its target
     for (let i = 0; i < 60; i++) {
-      const v = document.querySelector(".stage__video.is-active");
-      const a = v?.currentTime;
+      const c = document.querySelector(".stage__canvas");
+      const before = c?.dataset.frame;
       await new Promise((r) => setTimeout(r, 120));
-      if (!v || (v.readyState >= 2 && !v.seeking && Math.abs(v.currentTime - a) < 0.005)) break;
+      if (!c || (c.dataset.frame !== undefined && c.dataset.frame === before)) break;
     }
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
   });
@@ -76,10 +76,10 @@ for (const [id, f] of shots) {
   await new Promise((r) => setTimeout(r, 700));
   await settle();
   const state = await page.evaluate(() => {
-    const v = document.querySelector(".stage__video.is-active");
+    const c = document.querySelector(".stage__canvas");
     return {
-      clip: v?.getAttribute("src")?.split("/").pop() ?? "poster",
-      t: v ? +v.currentTime.toFixed(2) : null,
+      clip: c?.dataset.clip ?? "poster",
+      frame: c?.dataset.frame ?? null,
       chapter: document.querySelector(".nav__chapter")?.textContent,
       overflowX: document.documentElement.scrollWidth > window.innerWidth,
     };
@@ -170,8 +170,9 @@ checks.resources = await page.evaluate(() => {
   const kb = (list) => Math.round(list.reduce((s, e) => s + (e.transferSize || 0), 0) / 1024);
   return {
     jsKB: kb(r.filter((e) => e.name.endsWith(".js"))),
-    videosRequested: r.filter((e) => e.name.includes("/media/") && e.name.endsWith(".mp4")).map((e) => e.name.split("/").slice(-2).join("/")),
-    liveVideoSrcs: [...document.querySelectorAll(".stage__video")].filter((v) => v.getAttribute("src")).length,
+    frameKB: kb(r.filter((e) => e.name.includes("/media/frames/"))),
+    framesRequested: r.filter((e) => e.name.includes("/media/frames/")).length,
+    clipsFetched: [...new Set(r.filter((e) => e.name.includes("/media/frames/")).map((e) => e.name.split("/").slice(-2)[0]))],
     webglCanvases: document.querySelectorAll("canvas").length,
   };
 });

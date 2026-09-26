@@ -24,7 +24,7 @@ If `GOOGLE_FORM_URL` is empty, every Register button shows the original "Registr
 
 | Layer | Where | What |
 |---|---|---|
-| Film | `components/stage/CinemaStage.tsx` | Fixed full-screen `<video>` stack. Scroll position scrubs the active clip. Only the active clip and its two neighbours hold a `src`, and neighbours are pre-parked on their boundary frame so hand-offs never flash. |
+| Film | `components/stage/CinemaStage.tsx`, `lib/frames.ts` | Fixed full-screen canvas playing WebP **frame sequences**. Scrolling picks an already-decoded frame instead of seeking a video, so scrubbing never stutters; adjacent frames cross-fade by the sub-frame remainder. Frames are blitted 1:1 and scaled by CSS `object-fit`, so cost does not grow with screen size. Only the active chapter and its neighbours stay in memory. |
 | Choreography | `components/stage/ChapterTrigger.tsx`, `sections/FinalRide.tsx` | GSAP ScrollTrigger maps each section's progress to `(clip, t)` plus a mood (scrim, embers, heat, blackout) in the `lib/director.ts` store. Nothing re-renders React during scroll. |
 | WebGL | `stage/Embers.tsx`, `chain/ChainCanvas.tsx` | Additive ember particles (one draw call, shader-animated) and the instanced 3D steel chain (countdown frame and participation span). `three` is lazy-loaded, the chain renders only while on screen, and both dispose on unmount. |
 | Content | `components/sections/*`, `components/events/*` | Server-rendered sections with small client islands: countdown, search/filter, `<dialog>` modal, FAQ accordion, nav. |
@@ -45,20 +45,20 @@ If `GOOGLE_FORM_URL` is empty, every Register button shows the original "Registr
 ## Media pipeline
 
 - **Sources** (`../assets/source/`, kept local, not in git): the master reference (`keyframes/master_b.png`), 13 keyframes `k00–k12` and the raw 1080p clips. Keyframes were generated with GPT Image 2.5, conditioned on the master. Clips are Kling 3.0 pro, animated between consecutive keyframes.
-- `npm run media:encode` → `public/media/{desktop,mobile}` (H.264, 720p/480p, keyframe every 6 frames for cheap scrub seeks, no audio, faststart) plus WebP first/last-frame posters.
-- Phones get the 480p renditions with a per-clip focal point (`lib/clips.ts`). Reduced-motion and Save-Data visitors get posters only.
+- `npm run media:frames` → `public/media/frames/{desktop,mobile}/<clip>/f###.webp` (desktop 1152px @ 12 fps, mobile 704px @ 10 fps), plus `public/media/posters` (each clip's first/last frame) and the OG image. Frame counts are written to `src/content/frames.json`.
+- Roughly 4.5 MB per chapter on desktop, 2 MB on mobile — only the current chapter and its neighbour are fetched. Phones use the smaller frames with a per-clip focal point (`lib/clips.ts`). Reduced-motion and Save-Data visitors load posters only.
 
 ## Fallbacks
 
 - **No JavaScript:** all content and links render, and the film shows the first poster.
 - **No WebGL:** the chains fall back to CSS frames and embers are skipped.
-- **Video fails or is blocked:** the matching keyframe poster is shown.
+- **Frames fail or are blocked:** the keyframe poster stays on screen.
 - **`prefers-reduced-motion`:** no scrubbing, embers or pinning. The poster stills tell the story and the finale becomes a static layout.
 
 ## QA scripts (run against `npx next start -p 3100`; set `CHROME_PATH` if Chrome is not at the Windows default)
 
-- `npm run qa:visual | qa:mobile | qa:reduced` drive local Chrome headless. They screenshot every chapter, test keyboard modal/focus trap/Escape, FAQ and mobile menu, and measure scroll frame times and video/network usage.
-- `npm run qa:fallback` runs the no-JS, no-WebGL and blocked-video checks.
+- `npm run qa:visual | qa:mobile | qa:reduced` drive local Chrome headless. They screenshot every chapter, test keyboard modal/focus trap/Escape, FAQ and mobile menu, and measure scroll frame times and frame/network usage.
+- `npm run qa:fallback` runs the no-JS, no-WebGL and blocked-frames checks.
 
 ## Notes
 
