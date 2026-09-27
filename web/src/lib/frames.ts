@@ -24,7 +24,7 @@ export class Sequence {
   constructor(
     readonly id: ClipId,
     readonly variant: Variant,
-    private readonly maxParallel = 6,
+    private readonly maxParallel = parallelism(),
   ) {
     this.count = frameCount(id, variant);
     this.imgs = new Array(this.count).fill(null);
@@ -49,6 +49,8 @@ export class Sequence {
     this.inflight++;
     const img = new Image();
     img.decoding = "async";
+    // The frame under the playhead jumps the queue; prefetch stays out of the way.
+    img.fetchPriority = force ? "high" : "low";
     img.src = frameSrc(this.id, this.variant, i);
     this.imgs[i] = img;
     const done = (ok: boolean) => {
@@ -106,4 +108,34 @@ export class Sequence {
     this.state = new Uint8Array(this.count);
     this.inflight = 0;
   }
+}
+
+/** More sockets on a fast link, fewer on a slow one. */
+function parallelism() {
+  if (typeof navigator === "undefined") return 6;
+  const c = (navigator as Navigator & { connection?: { downlink?: number; effectiveType?: string } }).connection;
+  if (!c) return 6;
+  if (c.effectiveType === "2g" || c.effectiveType === "slow-2g") return 2;
+  if (c.effectiveType === "3g") return 4;
+  return (c.downlink ?? 0) >= 5 ? 10 : 6;
+}
+
+/**
+ * One frame from every chapter, fetched while the browser is idle. A jump to any
+ * section then has a correct frame to show immediately instead of holding the
+ * previous chapter's image while its sequence downloads.
+ */
+export function preloadSeeds(ids: readonly ClipId[], variant: Variant) {
+  const idle: (cb: () => void) => void =
+    typeof requestIdleCallback === "function" ? (cb) => requestIdleCallback(() => cb(), { timeout: 4000 }) : (cb) => setTimeout(cb, 600);
+  let i = 0;
+  const next = () => {
+    if (i >= ids.length) return;
+    const img = new Image();
+    img.decoding = "async";
+    img.fetchPriority = "low";
+    img.src = frameSrc(ids[i++], variant, 0);
+    img.decode().catch(() => {}).finally(() => idle(next));
+  };
+  idle(next);
 }

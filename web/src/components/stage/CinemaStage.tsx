@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { CLIPS, CLIP_INDEX, posterSrc, type ClipId } from "@/lib/clips";
 import { director, INTRO_SHARE } from "@/lib/director";
 import { isReducedMotion, prefersLowData } from "@/lib/env";
-import { Sequence } from "@/lib/frames";
+import { preloadSeeds, Sequence } from "@/lib/frames";
 import Embers from "./Embers";
 
 /**
@@ -69,6 +69,9 @@ export default function CinemaStage() {
     }
 
     const seqs = new Map<number, Sequence>();
+    // One frame from every chapter, fetched at idle, so jumping to any section
+    // (nav link, deep link, fast fling) always has a correct frame to show.
+    preloadSeeds(CLIPS.map((c) => c.id), variant);
 
     // The canvas is sized to the frame itself and blitted 1:1; CSS object-fit
     // does the scale-to-viewport on the compositor, so per-frame cost is a small
@@ -147,8 +150,8 @@ export default function CinemaStage() {
         }
       }
 
-      // Warm the neighbouring chapter once this one is in hand.
-      if (seq.loadedCount() > seq.count * 0.6) {
+      // Warm the neighbouring chapter well before this one finishes.
+      if (seq.loadedCount() > seq.count * 0.3) {
         const next = seqs.get(idx + 1);
         const prev = seqs.get(idx - 1);
         if (idx + 1 < CLIPS.length && !next) seqs.set(idx + 1, new Sequence(CLIPS[idx + 1].id, variant));

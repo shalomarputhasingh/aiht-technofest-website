@@ -2,26 +2,12 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import {
-  MOBILE_NAV_COLLEGE,
-  MOBILE_NAV_LINKS,
-  NAV_BRAND,
-  NAV_LINKS,
-  TOP_BAR,
-  type FilterKey,
-} from "@/content/site";
-import { emit } from "@/lib/bus";
+import { MOBILE_NAV_COLLEGE, MOBILE_NAV_LINKS, NAV_BRAND, NAV_LINKS, TOP_BAR } from "@/content/site";
 import { CHAPTERS } from "@/lib/chapters";
 import { director } from "@/lib/director";
 import RegisterLink, { ArrowIcon } from "./RegisterLink";
 
 const crest = "/brand/aiht-crest.png";
-
-function linkClick(filter?: FilterKey) {
-  return () => {
-    if (filter) emit("tf:filter", filter);
-  };
-}
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -108,7 +94,8 @@ export default function Header() {
               <span className="nav__brand-text">
                 <span className="nav__brand-tag">{NAV_BRAND.tag}</span>
                 <span className="nav__brand-logo">
-                  {NAV_BRAND.logo} <em>{NAV_BRAND.year}</em>
+                  {NAV_BRAND.logo}
+                  <em>{NAV_BRAND.year}</em>
                 </span>
               </span>
             </a>
@@ -124,9 +111,8 @@ export default function Header() {
                 <li key={l.label}>
                   <a
                     href={l.href}
-                    onClick={linkClick(l.filter)}
-                    aria-current={!l.filter && l.href === `#${chapter}` ? "location" : undefined}
-                    className={l.href === `#${chapter}` && !l.filter ? "is-active" : ""}
+                    aria-current={l.href === `#${chapter}` ? "location" : undefined}
+                    className={l.href === `#${chapter}` ? "is-active" : ""}
                   >
                     {l.label}
                   </a>
@@ -134,7 +120,7 @@ export default function Header() {
               ))}
             </ul>
 
-            <RegisterLink className="btn btn--fire btn--sm nav__cta">Register Now</RegisterLink>
+            <RegisterLink className="btn btn--fire btn--sm nav__cta">Pre-register</RegisterLink>
 
             <button
               ref={burgerRef}
@@ -180,7 +166,7 @@ export default function Header() {
           ))}
         </ul>
         <RegisterLink className="btn btn--fire btn--block" onNavigate={() => setOpen(false)}>
-          Register Now <ArrowIcon />
+          Pre-register <ArrowIcon />
         </RegisterLink>
       </div>
     </>

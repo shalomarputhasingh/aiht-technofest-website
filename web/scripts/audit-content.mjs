@@ -1,19 +1,23 @@
-// Content contract audit: verifies the rebuilt site against the original source files.
+// Content contract audit for Stack and Level.
 //   node scripts/audit-content.mjs [url]   (default http://localhost:3100)
-// 1. Every visible text segment of Source_Content/index.html exists in the rendered page.
-// 2. Every event (name, description, category) and FAQ (question + answer) from
-//    config.js / app.js is rendered; source.json matches the originals exactly.
-// 3. Every link destination from the original page is present.
-import { readFileSync } from "node:fs";
+//
+// 1. Every rule sentence in the official .docx appears on the rendered page.
+// 2. Every level, scoring line, regulation, code-of-conduct line, prize and FAQ
+//    from Source_Content is rendered; source.json matches the source files.
+// 3. Config values (date, venue, contacts) and link destinations are present.
+import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import vm from "node:vm";
+import { docxParagraphs } from "./lib/docx.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const srcDir = resolve(here, "../../Source_Content");
 const url = process.argv[2] ?? "http://localhost:3100";
 const require = createRequire(import.meta.url);
+
+// The official rules document, kept in the repo so this check runs anywhere.
+const DOCX = process.env.RULES_DOCX ?? resolve(srcDir, "Stack_and_Level_Rules_and_Instruction.docx");
 
 const decode = (s) =>
   s
@@ -23,102 +27,95 @@ const decode = (s) =>
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
     .replace(/&#x27;|&#39;/g, "'")
-    .replace(/&bull;/g, "•")
     .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(+n));
 
-const BLOCK = /<\/?(div|p|h[1-6]|li|ul|ol|section|header|footer|nav|main|article|button|a|dt|dd|dl|br|label|input|span class="(?:pill|top-bar-item|tele-item|host-pill-gold|host-pill-ghost|countdown-unit-label)[^"]*")[^>]*>/gi;
-
-/** HTML → visible text lines (scripts/styles/head/comments/svg removed). */
-function textLines(html) {
-  const body = html
+const stripTags = (html) =>
+  html
     .replace(/<head[\s\S]*?<\/head>/i, "")
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/<style[\s\S]*?<\/style>/gi, "")
     .replace(/<svg[\s\S]*?<\/svg>/gi, "")
     .replace(/<!--[\s\S]*?-->/g, "")
-    .replace(/<template[\s\S]*?<\/template>/gi, "");
-  return decode(body.replace(BLOCK, "\n").replace(/<[^>]+>/g, ""))
-    .split("\n")
-    .map((l) => l.replace(/\s+/g, " ").trim())
-    .filter((l) => /[A-Za-z0-9]/.test(l));
-}
+    .replace(/<[^>]+>/g, " ");
 
-const norm = (s) => decode(s.replace(/<[^>]+>/g, "")).replace(/\s+/g, " ").trim();
+const norm = (s) => decode(stripTags(String(s))).replace(/\s+/g, " ").trim();
+/** Whitespace/punctuation-insensitive comparison key. */
+const key = (s) => norm(s).toLowerCase().replace(/[\u2018\u2019']/g, "'").replace(/[\u2013\u2014]/g, "-").replace(/[^a-z0-9₹]/g, "");
 
 const res = await fetch(url);
 if (!res.ok) throw new Error(`GET ${url} → ${res.status}`);
-const renderedHtml = await res.text();
-const rendered = norm(textLines(renderedHtml).join(" \n "));
-const renderedFlat = rendered.replace(/\s+/g, "");
+const html = await res.text();
+const rendered = norm(html);
+const renderedKey = key(html);
 
 const failures = [];
-const pass = { text: 0, conditional: 0, events: 0, faq: 0, links: 0 };
+const pass = { doc: 0, levels: 0, rules: 0, scoring: 0, prizes: 0, faq: 0, config: 0, links: 0 };
+const has = (s) => renderedKey.includes(key(s));
 
-// Copy that only renders in a UI state (not in the initial HTML) — verified in the app source.
-const CONDITIONAL = new Set(["No events match your search. Try a different keyword."]);
-const siteSource = readFileSync(resolve(here, "../src/content/site.ts"), "utf8");
-
-// ---- 1. static copy -------------------------------------------------------
-const original = readFileSync(resolve(srcDir, "index.html"), "utf8");
-// Decorative/HUD strings that the original marks aria-hidden are allowed to be restyled;
-// they are still checked but whitespace-insensitively.
-for (const line of new Set(textLines(original))) {
-  const stripped = line
-    .replace(/^[^\w(©]+/u, "") // drop leading icon glyphs (✓ 📞 …)
-    .replace(/\s*[→←↑↓]\s*$/u, "") // arrow glyphs are now SVG icons
-    .trim();
-  if (!stripped) continue;
-  if (rendered.includes(stripped) || renderedFlat.includes(stripped.replace(/\s+/g, ""))) pass.text++;
-  else if (CONDITIONAL.has(stripped) && siteSource.includes(stripped)) pass.conditional++;
-  else failures.push(`[copy] missing: "${stripped}"`);
+// ---- 1. the official document ---------------------------------------------
+if (existsSync(DOCX)) {
+  // Headings/labels from the document are re-worded for the web; the rule
+  // sentences themselves must survive verbatim.
+  const SENTENCE = /[.:]$/;
+  for (const raw of docxParagraphs(DOCX)) {
+    if (!SENTENCE.test(raw) || raw.length < 25) continue; // skip headings like "i. General Rules:"
+    if (/^\d+\.\s*Stack and Level/i.test(raw)) continue;
+    // "Level 2: Each category is scored…" — the prefix is document structure,
+    // shown on the site as the level the scoring belongs to.
+    const line = raw.replace(/^Level\s*\d+\s*:\s*/i, "");
+    if (has(line)) pass.doc++;
+    else failures.push(`[docx] sentence missing from site: "${raw}"`);
+  }
+} else {
+  console.log(`(note: ${DOCX} not reachable — skipped verbatim .docx check)`);
 }
 
-// ---- 2. data --------------------------------------------------------------
-const { CONFIG, TECHNICAL_EVENTS, NON_TECHNICAL_EVENTS } = require(resolve(srcDir, "config.js"));
-const appJs = readFileSync(resolve(srcDir, "app.js"), "utf8");
-const FAQ_DATA = vm.runInNewContext(appJs.match(/const FAQ_DATA = (\[[\s\S]*?\n\]);/)[1]);
+// ---- 2. structured source --------------------------------------------------
+const { CONFIG } = require(resolve(srcDir, "config.js"));
+const SRC = require(resolve(srcDir, "stack-and-level.js"));
 const extracted = JSON.parse(readFileSync(resolve(here, "../src/content/source.json"), "utf8"));
 
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-if (!same(extracted.CONFIG, CONFIG)) failures.push("[data] source.json CONFIG differs from config.js — re-run extract-content");
-if (!same(extracted.TECHNICAL_EVENTS, TECHNICAL_EVENTS)) failures.push("[data] TECHNICAL_EVENTS differ from config.js");
-if (!same(extracted.NON_TECHNICAL_EVENTS, NON_TECHNICAL_EVENTS)) failures.push("[data] NON_TECHNICAL_EVENTS differ from config.js");
-if (!same(extracted.FAQ_DATA, FAQ_DATA)) failures.push("[data] FAQ_DATA differs from app.js");
-
-// Counts shown in the original index.html must agree with the event data.
-for (const [label, n] of [["Technical Events — ", TECHNICAL_EVENTS.length], ["Non-Technical Events — ", NON_TECHNICAL_EVENTS.length]]) {
-  if (!original.includes(label + n)) failures.push(`[data] index.html heading "${label}…" does not match ${n} events in config.js`);
-}
-const allEvents = [...TECHNICAL_EVENTS, ...NON_TECHNICAL_EVENTS];
-
-for (const e of allEvents) {
-  const missing = [e.name, e.description].filter((s) => !rendered.includes(norm(s)));
-  if (missing.length) failures.push(`[event] ${e.id} missing: ${missing.join(" | ")}`);
-  else pass.events++;
+if (!same(extracted.CONFIG, CONFIG)) failures.push("[data] source.json CONFIG differs from config.js — re-run content:extract");
+for (const k of ["GENERAL_RULES", "LEVELS", "REGULATIONS", "CODE_OF_CONDUCT", "WINNING", "PRIZES", "PROGRESSION", "FAQ"]) {
+  if (!same(extracted[k], SRC[k])) failures.push(`[data] ${k} differs from stack-and-level.js — re-run content:extract`);
 }
 
-for (const f of FAQ_DATA) {
-  const missing = [f.q, f.a].map(norm).filter((s) => !rendered.includes(s));
-  if (missing.length) failures.push(`[faq] missing: ${missing.join(" | ")}`);
+for (const l of SRC.LEVELS) {
+  const missing = [l.name, l.kind, l.number, l.tagline, ...l.rules, ...l.scoring.map((s) => s.text)].filter((s) => !has(s));
+  if (missing.length) failures.push(`[level] ${l.id} missing: ${missing.slice(0, 3).join(" | ")}`);
+  else pass.levels++;
+  pass.scoring += l.scoring.length;
+}
+for (const r of [...SRC.GENERAL_RULES, ...SRC.REGULATIONS, ...SRC.CODE_OF_CONDUCT, ...SRC.WINNING]) {
+  if (has(r)) pass.rules++;
+  else failures.push(`[rule] missing: "${r}"`);
+}
+for (const p of SRC.PRIZES) {
+  if (has(p.amount) && has(p.position)) pass.prizes++;
+  else failures.push(`[prize] missing: ${p.position} ${p.amount}`);
+}
+for (const f of SRC.FAQ) {
+  const missing = [f.q, f.a].filter((s) => !has(s));
+  if (missing.length) failures.push(`[faq] missing: ${norm(missing[0]).slice(0, 60)}…`);
   else pass.faq++;
 }
 
-// ---- 3. destinations ------------------------------------------------------
-const hrefs = new Set([...original.matchAll(/href="([^"#][^"]*)"/g)].map((m) => m[1]).filter((h) => !/\.css$|fonts\.g|^data:/.test(h)));
-hrefs.add(CONFIG.GOOGLE_FORM_URL);
-for (const h of hrefs) {
-  if (renderedHtml.includes(`href="${h}"`)) pass.links++;
-  else failures.push(`[link] missing destination: ${h}`);
+// ---- 3. config + destinations ----------------------------------------------
+for (const k of ["EVENT_NAME", "EVENT_DISPLAY_TITLE", "FEST_NAME", "DEPARTMENT", "EVENT_DATE_DISPLAY", "COLLEGE_NAME", "TEAM_SIZE", "VENUE_ROOMS"]) {
+  if (has(CONFIG[k])) pass.config++;
+  else failures.push(`[config] ${k} ("${CONFIG[k]}") not rendered`);
 }
-for (const anchor of ["#hero", "#about", "#events", "#participation", "#faq"]) {
-  if (!renderedHtml.includes(`href="${anchor}"`)) failures.push(`[nav] missing anchor ${anchor}`);
+for (const href of [CONFIG.GOOGLE_FORM_URL, CONFIG.COLLEGE_WEBSITE, "tel:+914427471330", "mailto:principal@aiht.ac.in"]) {
+  if (html.includes(`href="${href}"`)) pass.links++;
+  else failures.push(`[link] missing destination: ${href}`);
 }
-for (const id of ["hero", "countdown", "about", "events", "participation", "registration", "info", "faq", "final-cta"]) {
-  if (!renderedHtml.includes(`id="${id}"`)) failures.push(`[section] missing #${id}`);
+for (const id of ["hero", "countdown", "about", "levels", "progression", "rules", "registration", "info", "faq", "final-cta"]) {
+  if (!html.includes(`id="${id}"`)) failures.push(`[section] missing #${id}`);
 }
 
 console.log(
-  `copy segments ok: ${pass.text} (+${pass.conditional} state-dependent) | events ok: ${pass.events}/${allEvents.length} | faq ok: ${pass.faq}/${FAQ_DATA.length} | link destinations ok: ${pass.links}/${hrefs.size}`,
+  `docx sentences ok: ${pass.doc} | levels ok: ${pass.levels}/3 | rules ok: ${pass.rules} | scoring lines: ${pass.scoring} | prizes ok: ${pass.prizes}/3 | faq ok: ${pass.faq}/${SRC.FAQ.length} | config ok: ${pass.config} | links ok: ${pass.links}`,
 );
 if (failures.length) {
   console.log(`\n${failures.length} FAILURE(S):`);

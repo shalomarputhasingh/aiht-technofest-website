@@ -149,7 +149,7 @@ export default function FinalRide() {
           <p className="final__title-name">
             <span className="final__title-techno">{HERO.titleA}</span>
             <span className="final__title-fest">{HERO.titleB}</span>{" "}
-            <span className="final__title-year">{HERO.year}</span>
+            <span className="final__title-year">{HERO.official}</span>
           </p>
           <span className="final__title-rule" aria-hidden="true" />
           <p className="final__title-tagline">{HERO.tagline}</p>

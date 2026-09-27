@@ -44,20 +44,18 @@ const shots = [
   ["hero", 0],
   ["hero", 0.7],
   ["countdown", 0.55],
-  ["about", 0.3],
-  ["about", 0.75],
-  ["events", 0.08],
-  ["events", 0.45],
-  ["participation", 0.62],
-  ["registration", 0.45],
-  ["registration", 0.8],
-  ["info", 0.65],
+  ["about", 0.4],
+  ["levels", 0.06],
+  ["levels", 0.4],
+  ["levels", 0.75],
+  ["progression", 0.45],
+  ["progression", 0.8],
+  ["rules", 0.55],
+  ["registration", 0.6],
+  ["info", 0.6],
   ["faq", 0.5],
   ["final-cta", 0.12],
-  ["final-cta", 0.33],
   ["final-cta", 0.52],
-  ["final-cta", 0.74],
-  ["final-cta", 0.84],
   ["final-cta", 0.97],
 ];
 
@@ -91,10 +89,10 @@ for (const [id, f] of shots) {
 
 // ---- interaction checks ------------------------------------------------------
 const checks = {};
-await page.evaluate(() => document.getElementById("events").scrollIntoView());
+await page.evaluate(() => document.getElementById("levels").scrollIntoView());
 await new Promise((r) => setTimeout(r, 800));
 // keyboard: focus a card, Enter opens, Escape closes, focus restored
-await page.focus(".event-card");
+await page.focus(".level__more");
 await page.keyboard.press("Enter");
 await new Promise((r) => setTimeout(r, 700));
 checks.modalOpensOnEnter = await page.evaluate(() => document.querySelector("dialog.modal").open);
@@ -107,7 +105,7 @@ checks.focusStaysInModal = await page.evaluate(() => !!document.activeElement?.c
 await page.keyboard.press("Escape");
 await new Promise((r) => setTimeout(r, 500));
 checks.modalClosesOnEscape = await page.evaluate(() => !document.querySelector("dialog.modal").open);
-checks.focusRestored = await page.evaluate(() => document.activeElement?.classList.contains("event-card"));
+checks.focusRestored = await page.evaluate(() => document.activeElement?.classList.contains("level__more"));
 checks.scrollUnlocked = await page.evaluate(() => !document.body.classList.contains("scroll-locked"));
 
 // FAQ accordion (single open)

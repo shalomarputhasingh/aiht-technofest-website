@@ -1,8 +1,5 @@
 // Minimal cross-island event bus (sections are server components with small client islands).
-import type { FilterKey } from "@/content/site";
-
 type Events = {
-  "tf:filter": FilterKey;
   "tf:toast": { title: string; body: string };
 };
 

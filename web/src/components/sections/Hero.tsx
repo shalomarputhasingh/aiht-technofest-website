@@ -27,8 +27,8 @@ export default function Hero() {
               <span className="hero__techno">{HERO.titleA}</span>
               <span className="hero__fest">{HERO.titleB}</span>
             </span>
-            <span className="hero__year intro-step" style={{ ["--d" as string]: "1.6s" }}>
-              {HERO.year}
+            <span className="hero__official intro-step" style={{ ["--d" as string]: "1.6s" }}>
+              {HERO.official}
             </span>
           </h1>
 

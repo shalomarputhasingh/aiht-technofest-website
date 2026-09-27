@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Big_Shoulders, JetBrains_Mono, Manrope } from "next/font/google";
-import { COUNTS } from "@/content/site";
+import { CONFIG, LEVELS } from "@/content/site";
 import "./globals.css";
 
 const display = Big_Shoulders({
@@ -29,18 +29,18 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 // Copy mirrors the <head> of Source_Content/index.html.
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Technofest 2026 | AIHT College Technical & Non-Technical Fest",
-  description:
-    "Technofest 2026 — Anand Institute of Higher Technology's college technical and non-technical fest featuring innovation, competitions, creativity and exciting student events on 30 September 2026.",
+  title: `${CONFIG.EVENT_NAME} | ${CONFIG.FEST_NAME} — ${CONFIG.COLLEGE_SHORT}`,
+  description: `${CONFIG.EVENT_NAME} is the ${CONFIG.DEPARTMENT} technical event at ${CONFIG.FEST_NAME}, ${CONFIG.COLLEGE_NAME}, on ${CONFIG.EVENT_DATE_DISPLAY}. Three levels — ${LEVELS.map((l) => l.name).join(", ")} — for teams of ${CONFIG.TEAM_SIZE}.`,
   keywords: [
-    "Technofest 2026",
+    CONFIG.EVENT_NAME,
+    CONFIG.EVENT_DISPLAY_TITLE,
+    ...LEVELS.map((l) => l.name),
+    CONFIG.FEST_NAME,
     "AIHT",
-    "Anand Institute of Higher Technology",
-    "college fest",
-    "technical events",
-    "non-technical events",
-    "student competition",
-    "innovation fest",
+    CONFIG.COLLEGE_NAME,
+    "debugging contest",
+    "coding event",
+    "CSE",
     "Chennai",
     "OMR",
   ],
@@ -48,16 +48,15 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
   openGraph: {
     type: "website",
-    title: "Technofest 2026 | AIHT — Where Technology Meets Talent",
-    description:
-      `Technofest 2026 at Anand Institute of Higher Technology, Chennai — 30 September 2026. ${COUNTS.total} technical & non-technical events. Register now!`,
-    siteName: "Technofest 2026 — AIHT",
-    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Technofest 2026" }],
+    title: `${CONFIG.EVENT_NAME} — ${CONFIG.EVENT_TAGLINE}`,
+    description: `Three levels at ${CONFIG.FEST_NAME}: Bug Bounty, Sight Unseen and Buzz or Bust. Teams of ${CONFIG.TEAM_SIZE}, ${CONFIG.EVENT_DATE_DISPLAY}. ${CONFIG.PRIZE_POOL}.`,
+    siteName: `${CONFIG.EVENT_NAME} — ${CONFIG.FEST_NAME}`,
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: CONFIG.EVENT_NAME }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Technofest 2026 | Where Technology Meets Talent",
-    description: "Technofest 2026 — 30 September 2026. Technical & Non-Technical college fest.",
+    title: `${CONFIG.EVENT_NAME} | ${CONFIG.EVENT_TAGLINE}`,
+    description: `${CONFIG.DEPARTMENT} technical event at ${CONFIG.FEST_NAME} — ${CONFIG.EVENT_DATE_DISPLAY}.`,
     images: ["/og-image.jpg"],
   },
 };

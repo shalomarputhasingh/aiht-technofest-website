@@ -1,33 +1,31 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { COMING_SOON, type TechnofestEvent } from "@/content/site";
+import { LEVELS_SECTION, type Level } from "@/content/site";
 import RegisterLink, { ArrowIcon } from "@/components/ui/RegisterLink";
-import EventIcon from "./EventIcon";
+import LevelIcon from "./LevelIcon";
 
 /**
- * Event details in a native modal <dialog>: the page behind becomes inert,
- * Escape closes it, and Tab is additionally cycled inside so focus can never
- * escape to the browser chrome mid-dialog. Content mirrors buildModalBody() in
- * the original app.js.
+ * Full rules + scoring for one level in a native modal <dialog>: the page behind
+ * goes inert, Escape closes, and Tab is cycled inside so focus cannot escape.
  */
-export default function EventModal({ event, onClose }: { event: TechnofestEvent | null; onClose: () => void }) {
+export default function LevelModal({ level, onClose }: { level: Level | null; onClose: () => void }) {
   const ref = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const dlg = ref.current;
     if (!dlg) return;
-    if (event && !dlg.open) {
+    if (level && !dlg.open) {
       dlg.showModal();
       closeRef.current?.focus();
-    } else if (!event && dlg.open) {
+    } else if (!level && dlg.open) {
       dlg.close();
     }
-  }, [event]);
+  }, [level]);
 
   // Scroll lock is bound to the open state, so it is always released.
-  const isOpen = !!event;
+  const isOpen = !!level;
   useEffect(() => {
     if (!isOpen) return;
     document.body.classList.add("scroll-locked");
@@ -39,12 +37,10 @@ export default function EventModal({ event, onClose }: { event: TechnofestEvent 
     if (!dlg) return;
     const onDialogClose = () => onClose();
     const onCancel = (e: Event) => {
-      e.preventDefault(); // run our own close so state + focus restore stay in sync
+      e.preventDefault();
       dlg.close();
     };
     const onKey = (e: KeyboardEvent) => {
-      // Explicit Escape handling (as in the original app.js) — don't rely solely on
-      // the browser's dialog close-watcher, which can swallow repeated cancels.
       if (e.key === "Escape") {
         e.preventDefault();
         dlg.close();
@@ -77,26 +73,24 @@ export default function EventModal({ event, onClose }: { event: TechnofestEvent 
     };
   }, [onClose]);
 
-  const isTech = event?.category === "Technical";
-  const kind = isTech ? "tech" : "nontech";
-
   return (
-    <dialog ref={ref} className="modal" aria-labelledby="modal-event-title">
-      {event && (
-        <div className={`modal__panel modal__panel--${kind}`}>
+    <dialog ref={ref} className="modal" aria-labelledby="modal-level-title">
+      {level && (
+        <div className="modal__panel">
           <div className="modal__header">
             <div className="modal__title-group">
               <span className="modal__icon">
-                <EventIcon name={event.svgIcon} size={26} />
+                <LevelIcon name={level.svgIcon} size={26} />
               </span>
               <div>
-                <h3 className="modal__title" id="modal-event-title">
-                  {event.name}
+                <span className="badge badge--tech">{level.number}</span>
+                <h3 className="modal__title" id="modal-level-title">
+                  {level.name}
                 </h3>
-                <span className={`badge badge--${kind}`}>{event.category}</span>
+                <p className="modal__subtitle">{level.kind}</p>
               </div>
             </div>
-            <button ref={closeRef} type="button" className="modal__close" aria-label="Close event details" onClick={() => ref.current?.close()}>
+            <button ref={closeRef} type="button" className="modal__close" aria-label="Close level details" onClick={() => ref.current?.close()}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
                 <path d="M18 6L6 18M6 6l12 12" />
               </svg>
@@ -105,17 +99,12 @@ export default function EventModal({ event, onClose }: { event: TechnofestEvent 
 
           <div className="modal__body">
             <div className="modal__section">
-              <h4 className="modal__label">Description</h4>
-              <p>{event.description}</p>
-            </div>
-            <div className="modal__section">
-              <h4 className="modal__label">Event Details</h4>
+              <h4 className="modal__label">At a glance</h4>
               <dl className="modal__grid">
                 {[
-                  ["Category", event.category],
-                  ["Team Size", event.teamSize || COMING_SOON],
-                  ["Duration", event.duration || COMING_SOON],
-                  ["Venue", event.venue || COMING_SOON],
+                  ["Time", level.duration],
+                  ["Format", level.format],
+                  ["Qualifier", level.qualifier],
                 ].map(([label, value]) => (
                   <div className="modal__item" key={label}>
                     <dt>{label}</dt>
@@ -124,37 +113,32 @@ export default function EventModal({ event, onClose }: { event: TechnofestEvent 
                 ))}
               </dl>
             </div>
+
             <div className="modal__section">
-              <h4 className="modal__label">Eligibility</h4>
-              <p>{event.eligibility || COMING_SOON}</p>
+              <h4 className="modal__label">{LEVELS_SECTION.rulesLabel}</h4>
+              <ul className="modal__rules">
+                {level.rules.map((r) => (
+                  <li key={r}>{r}</li>
+                ))}
+              </ul>
             </div>
+
             <div className="modal__section">
-              <h4 className="modal__label">Rules &amp; Guidelines</h4>
-              {event.rules.length > 0 ? (
-                <ul className="modal__rules">
-                  {event.rules.map((r) => (
-                    <li key={r}>{r}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p>{COMING_SOON}</p>
-              )}
+              <h4 className="modal__label">{LEVELS_SECTION.scoringLabel}</h4>
+              <dl className="modal__scoring">
+                {level.scoring.map((s) => (
+                  <div key={s.label}>
+                    <dt>{s.label}</dt>
+                    <dd>{s.text}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
-            <div className="modal__section">
-              <h4 className="modal__label">Coordinators</h4>
-              <p>{event.coordinators.length > 0 ? event.coordinators.join(", ") : COMING_SOON}</p>
-            </div>
-            {event.additionalInfo && (
-              <div className="modal__section">
-                <h4 className="modal__label">Additional Information</h4>
-                <p>{event.additionalInfo}</p>
-              </div>
-            )}
           </div>
 
           <div className="modal__footer">
-            <RegisterLink className="btn btn--fire" label={`Register for ${event.name}`}>
-              Register Now <ArrowIcon />
+            <RegisterLink className="btn btn--fire" label={`Pre-register for ${level.name}`}>
+              Pre-register <ArrowIcon />
             </RegisterLink>
           </div>
         </div>
