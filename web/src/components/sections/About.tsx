@@ -14,7 +14,7 @@ export default function About() {
   return (
     <section id="about" className="chapter chapter--about" aria-labelledby="about-heading">
       <ChapterTrigger
-        clips={["c03_mount", "c04_ignition"]}
+        clips={["c03_mount"]}
         mood={{ scrim: [0.15, 0.25], embers: [0.8, 1.4], heat: [0.45, 1] }}
       />
       <div className="container about">

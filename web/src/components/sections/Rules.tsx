@@ -1,12 +1,12 @@
 import { RULES_SECTION } from "@/content/site";
-import LevelIcon from "@/components/levels/LevelIcon";
+import EventIcon from "@/components/events/EventIcon";
 import ChapterTrigger from "@/components/stage/ChapterTrigger";
 import ChapterLabel, { SectionHeading } from "./ChapterLabel";
 
 export default function Rules() {
   return (
     <section id="rules" className="chapter chapter--rules" aria-labelledby="rules-heading">
-      <ChapterTrigger clips={["c07_stop"]} mood={{ scrim: [0.35, 0.45], embers: [1.1, 0.7], heat: [0.85, 0.55] }} />
+      <ChapterTrigger clips={["c08_watch"]} mood={{ scrim: [0.4, 0.5], embers: [0.9, 0.7], heat: [0.7, 0.5] }} hold={0.25} />
       <div className="container">
         <ChapterLabel id="rules" />
         <SectionHeading
@@ -23,7 +23,7 @@ export default function Rules() {
             <section key={group.key} className={`rulebook__group rulebook__group--${group.key} glass`} data-reveal style={{ ["--i" as string]: i }} aria-labelledby={`rules-${group.key}`}>
               <h3 className="rulebook__title" id={`rules-${group.key}`}>
                 <span className="rulebook__icon">
-                  <LevelIcon name={group.icon} size={20} />
+                  <EventIcon name={group.icon} size={20} />
                 </span>
                 {group.title}
               </h3>

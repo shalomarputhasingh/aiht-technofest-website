@@ -1,5 +1,5 @@
-// Extracts the authoritative Stack and Level data straight from the source files
-// (Source_Content/config.js + stack-and-level.js) so nothing is retyped by hand.
+// Extracts the authoritative CSE event data straight from the source files
+// (Source_Content/config.js + cse-events.js) so nothing is retyped by hand.
 // Output: src/content/source.json
 import { writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -11,19 +11,20 @@ const srcDir = resolve(here, "../../Source_Content");
 const require = createRequire(import.meta.url);
 
 const { CONFIG } = require(resolve(srcDir, "config.js"));
-const { GENERAL_RULES, LEVELS, REGULATIONS, CODE_OF_CONDUCT, WINNING, PRIZES, PROGRESSION, FAQ } = require(
-  resolve(srcDir, "stack-and-level.js"),
-);
+const { EVENTS, PRIZE_NOTE, FAQ } = require(resolve(srcDir, "cse-events.js"));
 
-const out = { CONFIG, GENERAL_RULES, LEVELS, REGULATIONS, CODE_OF_CONDUCT, WINNING, PRIZES, PROGRESSION, FAQ };
+const out = { CONFIG, EVENTS, PRIZE_NOTE, FAQ };
 
-if (LEVELS.length !== 3) throw new Error(`Expected 3 levels, got ${LEVELS.length}`);
-const ids = LEVELS.map((l) => l.id);
-if (new Set(ids).size !== ids.length) throw new Error("Duplicate level ids");
-if (!CONFIG.EVENT_DATE || !CONFIG.EVENT_NAME) throw new Error("config.js is missing EVENT_DATE/EVENT_NAME");
+if (!EVENTS.length) throw new Error("cse-events.js has no events");
+const ids = EVENTS.map((e) => e.id);
+if (new Set(ids).size !== ids.length) throw new Error("Duplicate event ids");
+for (const e of EVENTS) {
+  if (!e.rounds.length) throw new Error(`${e.id} has no rounds`);
+  if (!e.generalRules.length) throw new Error(`${e.id} has no general rules`);
+}
+if (!CONFIG.EVENT_DATE || !CONFIG.FEST_NAME) throw new Error("config.js is missing EVENT_DATE/FEST_NAME");
 
+const games = EVENTS.reduce((n, e) => n + e.rounds.reduce((m, r) => m + r.games.length, 0), 0);
 const dest = resolve(here, "../src/content/source.json");
 writeFileSync(dest, JSON.stringify(out, null, 2) + "\n");
-console.log(
-  `Extracted ${LEVELS.length} levels, ${GENERAL_RULES.length + REGULATIONS.length + CODE_OF_CONDUCT.length} rules, ${FAQ.length} FAQs -> ${dest}`,
-);
+console.log(`Extracted ${EVENTS.length} events, ${EVENTS.reduce((n, e) => n + e.rounds.length, 0)} rounds, ${games} games, ${FAQ.length} FAQs -> ${dest}`);
