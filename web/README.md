@@ -13,7 +13,7 @@ Set `NEXT_PUBLIC_SITE_URL` to the deployed origin so Open Graph/Twitter images r
 
 `../Source_Content/` is the source of truth.
 
-1. `config.js` — dates, venue, contacts, team size, registration mode, prize pool, form URL.
+1. `config.js` — dates, venue (`VENUE_BLOCK` is the CSE block, `VENUE_ROOMS` the labs), contacts, team size, registration mode, prize pool, form URL.
 2. `cse-events.js` — all three events: general rules, rounds and their games, scoring, regulations, code of conduct, winning, prizes/progression and the FAQ. Rule sentences are transcribed verbatim from `Technofest_3.0_CSE_Rules.docx` (generated from it — see the header of that file).
 3. `npm run content:extract` regenerates `src/content/source.json`.
 4. `npm start`, then `npm run content:audit` — **re-reads the .docx** and fails if any rule sentence is missing from the rendered page, plus checks levels, scoring, prizes, FAQ, config values and link destinations.

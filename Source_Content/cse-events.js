@@ -21,7 +21,7 @@ const EVENTS = [
     facts: [
       { label: "Levels", value: "3" },
       { label: "Team size", value: "1 to 4 members" },
-      { label: "Runs in", value: "Lab 1 and Lab 2" },
+      { label: "Runs in", value: "Block A — Lab 1 and Lab 2" },
       { label: "Registration", value: "Spot registration at the venue" },
     ],
     generalRules: [
