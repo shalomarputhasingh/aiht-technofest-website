@@ -53,7 +53,7 @@ const html = await res.text();
 const renderedKey = key(html);
 
 const failures = [];
-const pass = { doc: 0, events: 0, rounds: 0, games: 0, rules: 0, scoring: 0, prizes: 0, faq: 0, config: 0, links: 0 };
+const pass = { doc: 0, events: 0, rounds: 0, games: 0, rules: 0, scoring: 0, prizes: 0, faq: 0, config: 0, icons: 0, links: 0 };
 const has = (s) => renderedKey.includes(key(s));
 
 // ---- 1. the official document ---------------------------------------------
@@ -122,7 +122,7 @@ for (const f of SRC.FAQ) {
 }
 
 // ---- 3. config + destinations ----------------------------------------------
-for (const k of ["FEST_NAME", "DEPARTMENT", "DEPARTMENT_FULL", "EVENT_DATE_DISPLAY", "COLLEGE_NAME", "REGISTRATION_MODE", "VENUE_ROOMS"]) {
+for (const k of ["FEST_NAME", "DEPARTMENT", "DEPARTMENT_FULL", "EVENT_DATE_DISPLAY", "COLLEGE_NAME", "REGISTRATION_MODE", "VENUE_ROOMS", "VENUE_BLOCK"]) {
   if (has(CONFIG[k])) pass.config++;
   else failures.push(`[config] ${k} ("${CONFIG[k]}") not rendered`);
 }
@@ -130,12 +130,22 @@ for (const href of [CONFIG.GOOGLE_FORM_URL, CONFIG.COLLEGE_WEBSITE, "tel:+914427
   if (html.includes(`href="${href}"`)) pass.links++;
   else failures.push(`[link] missing destination: ${href}`);
 }
+// Key detail cards: every one needs a drawn icon (a renamed key used to blank three of them out).
+{
+  const cards = html.match(/<li class="intel__card[\s\S]*?<\/li>/g) ?? [];
+  const expected = (readFileSync(resolve(here, "../src/content/site.ts"), "utf8").match(/\{ key: "[a-z]+", label:/g) ?? []).length;
+  if (cards.length !== expected) failures.push(`[info] ${cards.length} key detail cards rendered, expected ${expected}`);
+  const blank = cards.filter((c) => !/<path d="[^"]+"/.test(c)).length;
+  if (blank) failures.push(`[info] ${blank} key detail card(s) render an empty icon path`);
+  else pass.icons = cards.length;
+}
+
 for (const id of ["hero", "countdown", "about", "events", ...SRC.EVENTS.map((e) => e.id), "rules", "registration", "info", "faq", "final-cta"]) {
   if (!html.includes(`id="${id}"`)) failures.push(`[section] missing #${id}`);
 }
 
 console.log(
-  `docx sentences ok: ${pass.doc} | events ok: ${pass.events}/${SRC.EVENTS.length} | rounds: ${pass.rounds} | games: ${pass.games} | rules: ${pass.rules} | scoring: ${pass.scoring} | prizes: ${pass.prizes} | faq: ${pass.faq}/${SRC.FAQ.length} | config: ${pass.config} | links: ${pass.links}`,
+  `docx sentences ok: ${pass.doc} | events ok: ${pass.events}/${SRC.EVENTS.length} | rounds: ${pass.rounds} | games: ${pass.games} | rules: ${pass.rules} | scoring: ${pass.scoring} | prizes: ${pass.prizes} | faq: ${pass.faq}/${SRC.FAQ.length} | config: ${pass.config} | icons: ${pass.icons} | links: ${pass.links}`,
 );
 if (failures.length) {
   console.log(`\n${failures.length} FAILURE(S):`);

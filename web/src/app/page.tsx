@@ -33,14 +33,14 @@ const jsonLd = {
   startDate: CONFIG.EVENT_DATE.slice(0, 10),
   eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
   eventStatus: "https://schema.org/EventScheduled",
-  location: { "@type": "Place", name: CONFIG.COLLEGE_NAME, address: CONFIG.COLLEGE_ADDRESS },
+  location: { "@type": "Place", name: `${CONFIG.COLLEGE_NAME} — ${CONFIG.VENUE_BLOCK}`, address: CONFIG.COLLEGE_ADDRESS },
   organizer: { "@type": "CollegeOrUniversity", name: CONFIG.COLLEGE_NAME, url: CONFIG.COLLEGE_WEBSITE },
   subEvent: EVENTS.map((e) => ({
     "@type": "Event",
     name: e.name,
     description: e.summary,
     startDate: CONFIG.EVENT_DATE.slice(0, 10),
-    location: { "@type": "Place", name: CONFIG.COLLEGE_NAME, address: CONFIG.COLLEGE_ADDRESS },
+    location: { "@type": "Place", name: `${CONFIG.COLLEGE_NAME} — ${CONFIG.VENUE_BLOCK}`, address: CONFIG.COLLEGE_ADDRESS },
   })),
   offers: { "@type": "Offer", availability: "https://schema.org/InStock", price: "0", priceCurrency: "INR", url: CONFIG.GOOGLE_FORM_URL },
 };

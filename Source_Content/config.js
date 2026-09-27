@@ -20,6 +20,7 @@ const CONFIG = {
   EVENT_TYPE: "Technical + Non-Technical",
   REGISTRATION_MODE: "Spot registration at the venue",
   VENUE_ROOMS: "Lab 1 and Lab 2",
+  VENUE_BLOCK: "Block A",                       // the CSE department block on campus
 
   // ── College / Organizer ───────────────────────────────────
   COLLEGE_NAME: "Anand Institute of Higher Technology",
@@ -29,7 +30,7 @@ const CONFIG = {
   COLLEGE_ACCREDITATION: "ISO 9001:2008 Certified Institution & Accredited by NBA",
   COLLEGE_ADDRESS: "Kalasalingam Nagar, IT Corridor, Old Mahabalipuram Road (OMR), Kazhipattur, Chennai – 603103, Tamil Nadu",
   COLLEGE_WEBSITE: "https://www.aiht.ac.in",
-  VENUE: "Anand Institute of Higher Technology, OMR, Kazhipattur, Chennai – 603103",
+  VENUE: "Block A, Anand Institute of Higher Technology, OMR, Kazhipattur, Chennai – 603103",
   TIMING: "TO BE ANNOUNCED",
   REGISTRATION_DEADLINE: "TO BE ANNOUNCED",
   REGISTRATION_FEE: "TO BE ANNOUNCED",
