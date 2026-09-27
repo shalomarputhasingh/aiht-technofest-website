@@ -115,12 +115,13 @@ export default function Embers({ reduced }: { reduced: boolean }) {
       resize();
       window.addEventListener("resize", resize);
 
-      const clock = new THREE.Clock();
+      const timer = new THREE.Timer();
       let raf = 0;
       const loop = () => {
         raf = requestAnimationFrame(loop);
+        timer.update();
         const { mood } = director.get();
-        uniforms.uTime.value = clock.getElapsedTime();
+        uniforms.uTime.value = timer.getElapsed();
         uniforms.uIntensity.value += (mood.embers - uniforms.uIntensity.value) * 0.05;
         uniforms.uHeat.value += (mood.heat - uniforms.uHeat.value) * 0.05;
         if (uniforms.uIntensity.value > 0.01) renderer.render(scene, camera);

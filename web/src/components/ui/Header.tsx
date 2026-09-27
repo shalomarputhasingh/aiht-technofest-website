@@ -69,7 +69,7 @@ export default function Header() {
         <div className="topbar" aria-label="Institution Credentials">
           <div className="container topbar__inner">
             <div className="topbar__left">
-              <Image src={crest} alt="AIHT Emblem" width={20} height={19} className="topbar__crest" />
+              <Image src={crest} alt="AIHT Emblem" width={110} height={105} className="topbar__crest" />
               <span>{TOP_BAR.collegeName}</span>
               <span className="topbar__tag">{TOP_BAR.autonomous}</span>
             </div>
@@ -90,7 +90,7 @@ export default function Header() {
         <nav className="nav" aria-label="Main navigation">
           <div className="container nav__inner">
             <a href="#hero" className="nav__brand" aria-label="Technofest 2026 - Anand Institute of Higher Technology">
-              <Image src={crest} alt="AIHT Logo" width={34} height={32} priority />
+              <Image src={crest} alt="AIHT Logo" width={110} height={105} priority />
               <span className="nav__brand-text">
                 <span className="nav__brand-tag">{NAV_BRAND.tag}</span>
                 <span className="nav__brand-logo">
@@ -149,7 +149,7 @@ export default function Header() {
         hidden={!open}
       >
         <div className="mobile-nav__college">
-          <Image src={crest} alt="AIHT Crest" width={44} height={42} />
+          <Image src={crest} alt="AIHT Crest" width={110} height={105} />
           <div>
             <div className="mobile-nav__name">{MOBILE_NAV_COLLEGE.name}</div>
             <div className="mobile-nav__sub">{MOBILE_NAV_COLLEGE.sub}</div>

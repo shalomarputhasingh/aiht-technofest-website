@@ -18,7 +18,7 @@ export default function Footer() {
         <div className="footer__top">
           <div className="footer__brand">
             <div className="footer__crest-row">
-              <Image src="/brand/aiht-crest.png" alt="AIHT Crest" width={34} height={32} />
+              <Image src="/brand/aiht-crest.png" alt="AIHT Crest" width={110} height={105} />
               <span className="footer__logo">{FOOTER.logo}</span>
             </div>
             <p className="footer__tagline">{FOOTER.tagline}</p>
