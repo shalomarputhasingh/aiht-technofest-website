@@ -2674,7 +2674,7 @@ a.intel__value:hover {
 }
 
 .js .final--cinematic {
-  height: 720vh;
+  height: 460vh;
 }
 
 .js .final--cinematic .final__sticky {
@@ -3031,7 +3031,7 @@ a.intel__value:hover {
   .game { padding: 0.95rem 1rem; }
   .funnel { grid-template-columns: repeat(2, 1fr); }
 
-  .js .final--cinematic { height: 520vh; }
+  .js .final--cinematic { height: 340vh; }
 
   /* Comfortable thumb targets */
   .lineup__link { min-height: 44px; }

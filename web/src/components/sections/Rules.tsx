@@ -6,7 +6,7 @@ import ChapterLabel, { SectionHeading } from "./ChapterLabel";
 export default function Rules() {
   return (
     <section id="rules" className="chapter chapter--rules" aria-labelledby="rules-heading">
-      <ChapterTrigger clips={["c08_watch"]} mood={{ scrim: [0.4, 0.5], embers: [0.9, 0.7], heat: [0.7, 0.5] }} hold={0.25} />
+      <ChapterTrigger clips={["c08_watch"]} mood={{ scrim: [0.4, 0.5], embers: [0.9, 0.7], heat: [0.7, 0.5] }} />
       <div className="container">
         <ChapterLabel id="rules" />
         <SectionHeading
