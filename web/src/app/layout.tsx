@@ -8,6 +8,9 @@ const display = Big_Shoulders({
   subsets: ["latin"],
   weight: ["600", "800", "900"],
   display: "swap",
+  // Next has no capsize metrics for this family, so it cannot size-adjust a fallback for us.
+  fallback: ["Haettenschweiler", "Impact", "Arial Narrow", "sans-serif"],
+  adjustFontFallback: false,
 });
 
 const body = Manrope({

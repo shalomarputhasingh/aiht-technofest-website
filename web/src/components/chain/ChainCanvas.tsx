@@ -166,11 +166,12 @@ export default function ChainCanvas({ variant, className = "", inset = 18, heat 
         };
         window.addEventListener("pointermove", onPointer, { passive: true });
 
-        const clock = new THREE.Clock();
+        const timer = new THREE.Timer();
         let raf = 0;
 
         const render = () => {
-          const time = reduced ? 1.5 : clock.getElapsedTime();
+          timer.update();
+          const time = reduced ? 1.5 : timer.getElapsed();
           heatUniform.value += (heatRef.current - heatUniform.value) * 0.06;
           const spacing = 1.02 * linkScale; // link pitch along the path
           let n = 0;
