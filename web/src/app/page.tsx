@@ -54,7 +54,7 @@ export default function Home() {
       </a>
       <CinemaStage />
       <Header />
-      <main id="main">
+      <main id="main" tabIndex={-1}>
         <Hero />
         <CountdownSection />
         <About />
@@ -72,7 +72,6 @@ export default function Home() {
       <Chrome />
       <Toast />
       <RevealObserver />
-      <script src="http://localhost:3000/widget.js" data-widget-id="wgt_live_6CNsJwKMAnHRedemadXP" async></script>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
     </>
   );

@@ -80,7 +80,7 @@ export default function Header() {
             </ul>
             <div className="topbar__right">
               <span>{TOP_BAR.location}</span>
-              <a href="https://www.aiht.ac.in" target="_blank" rel="noopener noreferrer" aria-label="Visit AIHT official website (opens in new tab)">
+              <a href={TOP_BAR.websiteHref} target="_blank" rel="noopener noreferrer" aria-label="Visit AIHT official website (opens in new tab)">
                 {TOP_BAR.websiteLabel} ↗
               </a>
             </div>

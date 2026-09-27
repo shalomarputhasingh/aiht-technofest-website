@@ -13,7 +13,7 @@
   --bone: #ece6dc;
   --bone-dim: #c9c2b6;
   --muted: #98a0ad;
-  --faint: #6b7380;
+  --faint: #78818f;
 
   --fire: #ff7a1a;
   --fire-hot: #ffb04a;
@@ -1004,6 +1004,11 @@ main,
 .events__intro .chapter-label,
 .chapter--rules .chapter-label {
   justify-content: center;
+}
+
+/* skip-link target: focusable for Firefox/Safari, but no ring on a programmatic focus */
+main:focus {
+  outline: none;
 }
 
 /* reveal-on-scroll (only hidden when JS is present) */

@@ -29,7 +29,7 @@ const CONFIG = {
   COLLEGE_AFFILIATION: "Approved by AICTE, New Delhi. Affiliated to Anna University, Chennai.",
   COLLEGE_ACCREDITATION: "ISO 9001:2008 Certified Institution & Accredited by NBA",
   COLLEGE_ADDRESS: "Kalasalingam Nagar, IT Corridor, Old Mahabalipuram Road (OMR), Kazhipattur, Chennai – 603103, Tamil Nadu",
-  COLLEGE_WEBSITE: "https://www.aiht.ac.in",
+  COLLEGE_WEBSITE: "https://aiht.ac.in",   // the www host's certificate is invalid
   VENUE: "Block A, Anand Institute of Higher Technology, OMR, Kazhipattur, Chennai – 603103",
   TIMING: "TO BE ANNOUNCED",
   REGISTRATION_DEADLINE: "TO BE ANNOUNCED",

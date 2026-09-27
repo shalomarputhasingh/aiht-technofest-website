@@ -27,7 +27,8 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+// Override per environment; the default is the production deployment so link previews resolve.
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://aiht-technofest.vercel.app";
 
 // Derived from the event data, so metadata follows the rulebook.
 export const metadata: Metadata = {
@@ -49,8 +50,10 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: `${CONFIG.COLLEGE_NAME} — ${CONFIG.DEPARTMENT_FULL}` }],
   robots: { index: true, follow: true },
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
+    url: "/",
     title: `${CONFIG.DEPARTMENT_FULL} — ${CONFIG.FEST_NAME}`,
     description: `${EVENTS.map((e) => e.name).join(" · ")} — ${CONFIG.EVENT_DATE_DISPLAY} at ${CONFIG.COLLEGE_NAME}. Spot registration at the venue.`,
     siteName: `${CONFIG.DEPARTMENT} — ${CONFIG.FEST_NAME}`,

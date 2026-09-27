@@ -7,7 +7,7 @@ npm install
 npm run build && npm start      # http://localhost:3000
 ```
 
-Set `NEXT_PUBLIC_SITE_URL` to the deployed origin so Open Graph/Twitter images resolve to absolute URLs.
+Deployed at <https://aiht-technofest.vercel.app>. `NEXT_PUBLIC_SITE_URL` overrides that origin for Open Graph/Twitter images, the canonical link, `robots.txt` and `sitemap.xml`.
 
 ## Editing content
 
