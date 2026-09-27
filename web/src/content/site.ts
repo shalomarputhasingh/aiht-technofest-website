@@ -73,6 +73,7 @@ export const TOP_BAR = {
   credentials: ["AICTE Approved", "Affiliated to Anna University", "NBA Accredited", "ISO 9001:2008 Certified"],
   location: "OMR, Chennai",
   websiteLabel: "aiht.ac.in",
+  websiteHref: CONFIG.COLLEGE_WEBSITE,
 };
 
 export const NAV_BRAND = { tag: `${CONFIG.FEST_NAME} • ${CONFIG.DEPARTMENT}`, logo: "CSE", year: "3.0" };
@@ -250,7 +251,7 @@ export const INFO = {
     { key: "prize", label: "Prize Pool", value: CONFIG.PRIZE_POOL },
     { key: "venue", label: "Venue", value: `AIHT — ${CONFIG.VENUE_BLOCK}, OMR, Kazhipattur, Chennai – 603103` },
     { key: "timing", label: "Timing", value: "To be announced", tba: true },
-    { key: "website", label: "College Website", value: "www.aiht.ac.in", href: CONFIG.COLLEGE_WEBSITE },
+    { key: "website", label: "College Website", value: "aiht.ac.in", href: CONFIG.COLLEGE_WEBSITE },
     { key: "contact", label: "Contact", value: "044-27471330", href: "tel:+914427471330" },
   ] as { key: string; label: string; value: string; tba?: boolean; href?: string }[],
 };
@@ -277,7 +278,7 @@ export const FOOTER = {
     { kind: "phone", label: "044-27471330", href: "tel:+914427471330" },
     { kind: "mobile", label: "+91 80121 36666", href: "tel:+918012136666" },
     { kind: "mail", label: "principal@aiht.ac.in", href: "mailto:principal@aiht.ac.in" },
-    { kind: "web", label: "www.aiht.ac.in", href: CONFIG.COLLEGE_WEBSITE, external: true },
+    { kind: "web", label: "aiht.ac.in", href: CONFIG.COLLEGE_WEBSITE, external: true },
     { kind: "facebook", label: "Facebook", href: "https://www.facebook.com/aihtofficial", external: true },
   ],
   copyright: `© 2026 ${CONFIG.DEPARTMENT_FULL} — ${CONFIG.FEST_NAME}, ${CONFIG.COLLEGE_NAME}. All rights reserved.`,
