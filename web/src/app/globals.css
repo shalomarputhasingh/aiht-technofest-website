@@ -3044,6 +3044,17 @@ a.intel__value:hover {
     padding: 1.3rem 1.15rem 1.2rem;
   }
 
+  /* one prize per row — three columns force a min-content wider than a phone,
+     which stretched the whole rulebook grid and clipped its text */
+  .prizes__list {
+    grid-template-columns: 1fr;
+  }
+
+  /* stacked, so rank order reads better than the desktop podium (2nd, 1st, 3rd) */
+  .prize--1 { order: 0; }
+  .prize--2 { order: 1; }
+  .prize--3 { order: 2; }
+
   .prize {
     flex-direction: row;
     flex-wrap: wrap;
