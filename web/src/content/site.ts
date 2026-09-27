@@ -1,217 +1,197 @@
-// Technofest 2026 content contract.
-// Event/FAQ/config data is extracted verbatim from Source_Content/config.js + app.js
-// (see scripts/extract-content.mjs). Static page copy below is transcribed from
-// Source_Content/index.html and verified by scripts/audit-content.mjs.
+// Stack and Level content contract.
+// Rules/levels/FAQ data is extracted verbatim from Source_Content/config.js +
+// stack-and-level.js (see scripts/extract-content.mjs), which in turn transcribe
+// the official .docx. Page copy below is written for the site and audited against
+// the document by scripts/audit-content.mjs.
 import source from "./source.json";
 
-export type TechnofestEvent = {
+export type Level = {
   id: string;
+  number: string;
   name: string;
-  icon: string;
+  kind: string;
   svgIcon: string;
-  category: "Technical" | "Non-Technical";
-  description: string;
-  rules: string[];
-  eligibility: string;
-  teamSize: string;
+  tagline: string;
   duration: string;
-  venue: string;
-  coordinators: string[];
-  additionalInfo: string;
+  format: string;
+  qualifier: string;
+  rules: string[];
+  scoring: { label: string; text: string }[];
 };
-
-export type FilterKey = "all" | "technical" | "non-technical";
 
 export const CONFIG = source.CONFIG;
-export const TECHNICAL_EVENTS = source.TECHNICAL_EVENTS as TechnofestEvent[];
-export const NON_TECHNICAL_EVENTS = source.NON_TECHNICAL_EVENTS as TechnofestEvent[];
-export const ALL_EVENTS: (TechnofestEvent & { filterKey: Exclude<FilterKey, "all"> })[] = [
-  ...TECHNICAL_EVENTS.map((e) => ({ ...e, filterKey: "technical" as const })),
-  ...NON_TECHNICAL_EVENTS.map((e) => ({ ...e, filterKey: "non-technical" as const })),
-];
-/** Event counts are derived from the data so copy can never drift from the line-up. */
-export const COUNTS = {
-  technical: TECHNICAL_EVENTS.length,
-  nonTechnical: NON_TECHNICAL_EVENTS.length,
-  total: TECHNICAL_EVENTS.length + NON_TECHNICAL_EVENTS.length,
-};
-
-/** FAQ answers contain trusted inline markup (<strong>) from the source app.js. */
-export const FAQ_DATA = source.FAQ_DATA as { q: string; a: string }[];
-
-/** Fallback copy used by the original modal when a field is empty. */
-export const COMING_SOON = "Details will be announced soon.";
+export const LEVELS = source.LEVELS as Level[];
+export const GENERAL_RULES = source.GENERAL_RULES as string[];
+export const REGULATIONS = source.REGULATIONS as string[];
+export const CODE_OF_CONDUCT = source.CODE_OF_CONDUCT as string[];
+export const WINNING = source.WINNING as string[];
+export const PRIZES = source.PRIZES as { place: string; position: string; amount: string; extra: string }[];
+export const PROGRESSION = source.PROGRESSION as { stage: string; teams: string; detail: string }[];
+/** FAQ answers carry trusted inline markup (<strong>) from the source file. */
+export const FAQ_DATA = source.FAQ as { q: string; a: string }[];
 
 export const NAV_LINKS = [
   { href: "#hero", label: "Home" },
-  { href: "#about", label: "About" },
-  { href: "#events", label: "Technical Events", filter: "technical" as FilterKey },
-  { href: "#events", label: "Non-Technical", filter: "non-technical" as FilterKey },
-  { href: "#participation", label: "Rules" },
+  { href: "#about", label: "The Brief" },
+  { href: "#levels", label: "Levels" },
+  { href: "#rules", label: "Rules" },
   { href: "#faq", label: "FAQ" },
 ];
 
 export const MOBILE_NAV_LINKS = [
   { href: "#hero", label: "Home" },
-  { href: "#about", label: "About" },
-  { href: "#events", label: "Events" },
-  { href: "#participation", label: "Rules" },
+  { href: "#about", label: "The Brief" },
+  { href: "#levels", label: "Levels" },
+  { href: "#rules", label: "Rules" },
+  { href: "#registration", label: "Register" },
   { href: "#faq", label: "FAQ" },
 ];
 
 export const FOOTER_LINKS = [
   { href: "#hero", label: "Home" },
-  { href: "#about", label: "About" },
-  { href: "#events", label: "Technical Events", filter: "technical" as FilterKey },
-  { href: "#events", label: "Non-Technical Events", filter: "non-technical" as FilterKey },
-  { href: "#participation", label: "Rules" },
+  { href: "#about", label: "The Brief" },
+  { href: "#levels", label: "The Three Levels" },
+  { href: "#progression", label: "Prizes" },
+  { href: "#rules", label: "Rules & Conduct" },
+  { href: "#registration", label: "Register" },
   { href: "#faq", label: "FAQ" },
 ];
 
 export const TOP_BAR = {
-  collegeName: "Anand Institute of Higher Technology",
+  collegeName: CONFIG.COLLEGE_NAME,
   autonomous: "Autonomous",
   credentials: ["AICTE Approved", "Affiliated to Anna University", "NBA Accredited", "ISO 9001:2008 Certified"],
   location: "OMR, Chennai",
   websiteLabel: "aiht.ac.in",
 };
 
-export const NAV_BRAND = { tag: "AIHT • AUTONOMOUS", logo: "TECHNOFEST", year: "2026" };
+export const NAV_BRAND = { tag: `${CONFIG.FEST_NAME} • ${CONFIG.DEPARTMENT}`, logo: "STACK", year: "ERNAUT" };
 
 export const MOBILE_NAV_COLLEGE = {
-  name: "Anand Institute of Higher Technology",
-  sub: "An Autonomous Institution • Chennai",
+  name: CONFIG.COLLEGE_NAME,
+  sub: `${CONFIG.DEPARTMENT} • ${CONFIG.FEST_NAME}`,
 };
 
 export const HERO = {
-  hostPills: ["AIHT PRESENTS", "An Autonomous Institution", "Anna University Affiliated", "NBA Accredited"],
-  eyebrow: "Annual National-Level Technical & Non-Technical Fest",
+  hostPills: [CONFIG.FEST_NAME, CONFIG.DEPARTMENT, CONFIG.EVENT_TYPE],
+  eyebrow: `${CONFIG.EVENT_NAME} — Rules & Regulations`,
   telemetry: [
-    ["SYS", "ONLINE"],
-    ["CAMPUS", "AIHT OMR"],
-    ["COORD", "12.8231° N, 80.2285° E"],
+    ["EVENT", CONFIG.EVENT_NAME],
+    ["LEVELS", "03"],
+    ["TEAM", CONFIG.TEAM_SIZE],
     ["DATE", "30.09.2026"],
   ] as [string, string][],
-  titleA: "TECHNO",
-  titleB: "FEST",
-  year: "2026",
-  tagline: "Where Technology Meets Talent",
-  altTagline: "Innovate. Compete. Create.",
-  date: "30 September 2026",
+  titleA: "STACK",
+  titleB: "ERNAUT",
+  official: CONFIG.EVENT_NAME,
+  tagline: CONFIG.EVENT_TAGLINE,
+  altTagline: "Bug Bounty · Sight Unseen · Buzz or Bust",
+  date: CONFIG.EVENT_DATE_DISPLAY,
   description:
-    `An exciting college technical and non-technical fest bringing together innovation, competition, creativity and entertainment. ${COUNTS.total} events. One unforgettable day.`,
-  ctaRegister: "Register Now",
-  ctaExplore: "Explore Events",
+    "Three levels, one device, and difficulty that climbs with every round. Fix ten broken programs against the clock, rebuild a website you only saw once, then out-buzz the teams still standing.",
+  ctaRegister: "Pre-register",
+  ctaExplore: "See the levels",
 };
 
 export const COUNTDOWN = {
-  label: "Countdown to Technofest 2026",
-  live: "🎉 TECHNOFEST 2026 IS LIVE!",
+  label: `Countdown to ${CONFIG.EVENT_NAME}`,
+  live: "🎉 STACK AND LEVEL IS LIVE!",
   units: ["Days", "Hours", "Minutes", "Seconds"],
 };
 
 export const ABOUT = {
-  label: "About the Fest",
-  titleA: "About",
-  titleB: "Technofest",
+  label: "The Brief",
+  titleA: "What is",
+  titleB: "Stack and Level",
   paragraphs: [
     [
-      "Technofest 2026 is the annual technical and cultural celebration of ",
-      { strong: "Anand Institute of Higher Technology (AIHT)" },
-      ", an autonomous institution affiliated to Anna University, Chennai. From cutting-edge technical competitions to fun-filled non-technical activities, the fest gives students an opportunity to showcase their skills, discover new talents and compete with peers.",
+      { strong: "Stack and Level" },
+      " is the ",
+      { strong: `${CONFIG.DEPARTMENT} technical event at ${CONFIG.FEST_NAME}` },
+      ". The event consists of three levels, gradually increasing in difficulty: Bug Bounty, Sight Unseen and Buzz or Bust. Twenty teams start in the labs. Three walk away as winners.",
     ],
     [
-      "Whether you're a coder, an engineer, a creative thinker or just someone ready to take on a challenge, Technofest 2026 at AIHT's OMR campus has something for everyone. Come prepared to innovate, compete and create.",
+      "Participants compete in teams of 1 to 4 members. A laptop is optional — teams may use the lab computer provided, and each team competes on one device only. Everything else you need to know is on this page, straight from the rulebook.",
     ],
   ] as (string | { strong: string })[][],
   stats: [
-    { value: COUNTS.technical, label: "Technical Events" },
-    { value: COUNTS.nonTechnical, label: "Non-Technical Events" },
-    { value: COUNTS.total, label: "Total Events" },
-    { value: 1, label: "Day of Excitement" },
+    { value: 3, label: "Levels" },
+    { value: 20, label: "Teams at the start" },
+    { value: 4, label: "Members per team, max" },
+    { value: 3, label: "Winning teams" },
   ],
   highlights: [
-    { title: "Innovation", text: "Explore ideas and challenge yourself with forward-thinking competitions." },
-    { title: "Competition", text: "Compete, solve problems and prove your skills against the best." },
-    { title: "Creativity", text: "Think differently, break boundaries and showcase your talent." },
-    { title: "Experience", text: "Meet students, participate in events and enjoy an unforgettable fest." },
+    { title: "Debug", text: "Ten broken programs across five languages, and only ten minutes on the clock." },
+    { title: "Rebuild", text: "One look at a live website, then rebuild it from memory with an AI tool." },
+    { title: "Buzz", text: "Hit the buzzer first, code offline, and prove the output in front of the judges." },
+    { title: "Win", text: "Scores carry to the final level, where the top three teams take the prizes." },
   ],
 };
 
-export const EVENTS_SECTION = {
-  label: "Explore the Competitions",
-  titleA: "Discover",
-  titleB: "Events",
-  subtitle: `${COUNTS.total} exciting events across technical and non-technical categories. Find your challenge and register today.`,
-  filters: [
-    { key: "all" as FilterKey, label: "All Events" },
-    { key: "technical" as FilterKey, label: "Technical" },
-    { key: "non-technical" as FilterKey, label: "Non-Technical" },
-  ],
-  searchPlaceholder: "Search events…",
-  techHeading: `Technical Events — ${COUNTS.technical}`,
-  nontechHeading: `Non-Technical Events — ${COUNTS.nonTechnical}`,
-  noResults: "No events match your search. Try a different keyword.",
-  viewDetails: "View Details",
+export const LEVELS_SECTION = {
+  label: "The Three Games",
+  titleA: "Three Levels,",
+  titleB: "One Run",
+  subtitle:
+    "Every level is harder than the last, and only the top teams carry through. Open a level for its full rules and scoring.",
+  viewDetails: "Full rules",
+  rulesLabel: "How it runs",
+  scoringLabel: "Scoring",
 };
 
-export const PARTICIPATION = {
-  label: "Participation Guidelines",
-  titleA: "How Participation",
-  titleB: "Works",
-  subtitle: "Choose your category and select the events that suit you. The registration form will guide you through the rest.",
-  cards: [
-    {
-      key: "tech",
-      title: "Technical Event",
-      text: "Students choosing the Technical Event category will select one or more technical events in the registration form. Showcase your engineering and analytical skills.",
-    },
-    {
-      key: "nontech",
-      title: "Non-Technical Event",
-      text: "Students choosing the Non-Technical Event category will select one or more non-technical events. Creativity, fun and teamwork are at the heart of these challenges.",
-    },
-    {
-      key: "both",
-      title: "Both",
-      text: "Students choosing Both can select one or more technical events AND one or more non-technical events. The ultimate Technofest experience.",
-    },
+export const PROGRESSION_SECTION = {
+  label: "Qualification",
+  titleA: "From Twenty Teams",
+  titleB: "To Three",
+  subtitle: "Teams are cut at every level. This is the whole run, from the first lab to the final buzzer.",
+  prizesLabel: "The Prizes",
+  prizesTitleA: "What the Winners",
+  prizesTitleB: "Take Home",
+  winningLabel: "Winning",
+};
+
+export const RULES_SECTION = {
+  label: "Before You Compete",
+  titleA: "Rules &",
+  titleB: "Conduct",
+  subtitle: "Read these before you arrive. Breaking them costs points, or the whole event.",
+  groups: [
+    { key: "general", title: "General Rules", icon: "list", items: GENERAL_RULES },
+    { key: "regulations", title: "Rules & Regulations", icon: "shield", items: REGULATIONS },
+    { key: "conduct", title: "Code of Conduct", icon: "handshake", items: CODE_OF_CONDUCT },
   ],
-  noteLead: "Important:",
-  note: " Choose your participation category carefully before selecting your events. The registration form will show the relevant event options based on your selection.",
 };
 
 export const REGISTRATION = {
-  label: "Get Registered",
+  label: "Get In",
   titleA: "How to",
   titleB: "Register",
-  subtitle: "Registration is fast and simple through the official Technofest 2026 Google Form.",
+  subtitle: `${CONFIG.REGISTRATION_MODE}. Pre-register online so we can keep a slot for your team.`,
   steps: [
     {
       number: "STEP 01",
-      title: "Choose Your Events",
-      text: [
-        "Explore the technical and non-technical events. Decide which competitions you want to participate in — Technical, Non-Technical or Both.",
-      ],
+      title: "Form Your Team",
+      text: ["Participants compete in teams of 1 to 4 members. Pick your team before you reach the lab — you can also enter alone."],
     },
     {
       number: "STEP 02",
-      title: "Fill the Registration Form",
+      title: "Pre-register Online",
       text: [
-        "Click ",
-        { strong: "Register Now" },
-        " and complete the official Technofest 2026 Google Form. Enter your details, select your category and choose your events.",
+        "Hit ",
+        { strong: "Pre-register" },
+        ` and fill the ${CONFIG.FEST_NAME} form. This is optional, but it tells us you are coming.`,
       ],
     },
     {
       number: "STEP 03",
-      title: "Get Ready",
+      title: "Register at the Venue",
       text: [
-        "Check the event information on this website and prepare for 30 September 2026. Your journey to Technofest begins now.",
+        { strong: "Registration is spot registration only, at the venue." },
+        " Confirm your team on the day, keep your Team ID safe, and bring a laptop if you want one — it is optional.",
       ],
     },
   ] as { number: string; title: string; text: (string | { strong: string })[] }[],
-  cta: "Register for Technofest 2026",
+  cta: `Pre-register for ${CONFIG.EVENT_NAME}`,
 };
 
 export const INFO = {
@@ -219,15 +199,17 @@ export const INFO = {
   titleA: "Important",
   titleB: "Information",
   cards: [
-    { key: "date", label: "Date", value: "30 September 2026" },
-    { key: "event", label: "Event", value: "Technofest 2026" },
-    { key: "type", label: "Type", value: "Technical + Non-Technical" },
-    { key: "registration", label: "Registration", value: "Online via Google Form" },
+    { key: "date", label: "Date", value: CONFIG.EVENT_DATE_DISPLAY },
+    { key: "event", label: "Event", value: CONFIG.EVENT_NAME },
+    { key: "type", label: "Type", value: CONFIG.EVENT_TYPE },
+    { key: "department", label: "Organised by", value: CONFIG.DEPARTMENT },
+    { key: "team", label: "Team Size", value: CONFIG.TEAM_SIZE },
+    { key: "rooms", label: "Rounds Run In", value: CONFIG.VENUE_ROOMS },
+    { key: "registration", label: "Registration", value: CONFIG.REGISTRATION_MODE },
+    { key: "prize", label: "Prize Pool", value: CONFIG.PRIZE_POOL },
     { key: "venue", label: "Venue", value: "AIHT, OMR, Kazhipattur, Chennai – 603103" },
     { key: "timing", label: "Timing", value: "To be announced", tba: true },
-    { key: "deadline", label: "Registration Deadline", value: "To be announced", tba: true },
-    { key: "organiser", label: "Organiser", value: "Anand Institute of Higher Technology (AIHT)" },
-    { key: "website", label: "College Website", value: "www.aiht.ac.in", href: "https://www.aiht.ac.in" },
+    { key: "website", label: "College Website", value: "www.aiht.ac.in", href: CONFIG.COLLEGE_WEBSITE },
     { key: "contact", label: "Contact", value: "044-27471330", href: "tel:+914427471330" },
   ] as { key: string; label: string; value: string; tba?: boolean; href?: string }[],
 };
@@ -235,18 +217,18 @@ export const INFO = {
 export const FAQ_SECTION = { label: "Got Questions?", titleA: "Frequently Asked", titleB: "Questions" };
 
 export const FINAL_CTA = {
-  heading: ["Ready to Take", "the Challenge?"],
-  sub: "Your idea. Your skill. Your moment.",
-  body: "Explore the events, choose your challenges and register for Technofest 2026. The stage is set — are you ready?",
-  cta: "Register Now",
-  dateBadge: "30 September 2026",
+  heading: ["Ten Minutes.", "Ten Bugs."],
+  sub: "Think you can clear all three?",
+  body: "Twenty teams walk into the labs. Five reach the buzzer. Three take the prizes. Form your team, pre-register, and show up ready to debug.",
+  cta: "Pre-register",
+  dateBadge: CONFIG.EVENT_DATE_DISPLAY,
 };
 
 export const FOOTER = {
-  logo: "TECHNOFEST 2026",
-  tagline: "Where Technology Meets Talent",
-  college: "Anand Institute of Higher Technology",
-  collegeLines: ["An Autonomous Institution", "Affiliated to Anna University, Chennai"],
+  logo: "STACK AND LEVEL",
+  tagline: CONFIG.EVENT_TAGLINE,
+  college: CONFIG.COLLEGE_NAME,
+  collegeLines: [`${CONFIG.DEPARTMENT} • ${CONFIG.FEST_NAME}`, "An Autonomous Institution"],
   address: "OMR, Kazhipattur, Chennai – 603103",
   quickLinksTitle: "Quick Links",
   contactTitle: "Contact & Links",
@@ -254,14 +236,14 @@ export const FOOTER = {
     { kind: "phone", label: "044-27471330", href: "tel:+914427471330" },
     { kind: "mobile", label: "+91 80121 36666", href: "tel:+918012136666" },
     { kind: "mail", label: "principal@aiht.ac.in", href: "mailto:principal@aiht.ac.in" },
-    { kind: "web", label: "www.aiht.ac.in", href: "https://www.aiht.ac.in", external: true },
+    { kind: "web", label: "www.aiht.ac.in", href: CONFIG.COLLEGE_WEBSITE, external: true },
     { kind: "facebook", label: "Facebook", href: "https://www.facebook.com/aihtofficial", external: true },
   ],
-  copyright: "© 2026 Technofest 2026 — Anand Institute of Higher Technology. All rights reserved.",
+  copyright: `© 2026 ${CONFIG.EVENT_NAME} — ${CONFIG.FEST_NAME}, ${CONFIG.COLLEGE_NAME}. All rights reserved.`,
   accreditation: "Approved by AICTE | Affiliated to Anna University, Chennai | ISO 9001:2008 Certified | Accredited by NBA",
 };
 
 export const REGISTER_PENDING = {
-  title: "Registration coming soon!",
-  body: "The Google Form link will be active shortly. Stay tuned.",
+  title: "Pre-registration opening soon!",
+  body: "The form link will be active shortly. Spot registration is always available at the venue.",
 };

@@ -29,7 +29,7 @@ export default function Footer() {
               ))}
             </p>
             <p className="footer__address">{FOOTER.address}</p>
-            <RegisterLink className="btn btn--ghost btn--sm">Register Now</RegisterLink>
+            <RegisterLink className="btn btn--ghost btn--sm">Pre-register</RegisterLink>
           </div>
 
           <nav aria-label="Footer navigation — Quick Links">
@@ -37,9 +37,7 @@ export default function Footer() {
             <ul className="footer__list">
               {FOOTER_LINKS.map((l) => (
                 <li key={l.label}>
-                  <FooterLink href={l.href} filter={l.filter}>
-                    {l.label}
-                  </FooterLink>
+                  <FooterLink href={l.href}>{l.label}</FooterLink>
                 </li>
               ))}
             </ul>

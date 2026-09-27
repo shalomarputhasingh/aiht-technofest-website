@@ -88,7 +88,7 @@ export default function Chrome() {
 
       <div className={`mobile-cta ${showMobileCta ? "is-visible" : ""}`} aria-label="Mobile registration CTA" inert={!showMobileCta}>
         <RegisterLink className="btn btn--fire btn--block">
-          Register Now <ArrowIcon />
+          Pre-register <ArrowIcon />
         </RegisterLink>
       </div>
 

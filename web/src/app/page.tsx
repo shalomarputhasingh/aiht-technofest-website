@@ -1,4 +1,4 @@
-import { ALL_EVENTS, CONFIG } from "@/content/site";
+import { CONFIG, LEVELS, PRIZES } from "@/content/site";
 import CinemaStage from "@/components/stage/CinemaStage";
 import Header from "@/components/ui/Header";
 import Chrome from "@/components/ui/Chrome";
@@ -7,8 +7,9 @@ import RevealObserver from "@/components/ui/RevealObserver";
 import Hero from "@/components/sections/Hero";
 import CountdownSection from "@/components/sections/CountdownSection";
 import About from "@/components/sections/About";
-import Events from "@/components/sections/Events";
-import Participation from "@/components/sections/Participation";
+import Levels from "@/components/sections/Levels";
+import Progression from "@/components/sections/Progression";
+import Rules from "@/components/sections/Rules";
 import Registration from "@/components/sections/Registration";
 import Info from "@/components/sections/Info";
 import FaqSection from "@/components/sections/FaqSection";
@@ -18,18 +19,16 @@ import Footer from "@/components/sections/Footer";
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Event",
-  name: CONFIG.EVENT_NAME,
+  name: `${CONFIG.EVENT_NAME} — ${CONFIG.FEST_NAME}`,
   description: CONFIG.EVENT_TAGLINE,
   startDate: CONFIG.EVENT_DATE.slice(0, 10),
   eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
   eventStatus: "https://schema.org/EventScheduled",
-  location: {
-    "@type": "Place",
-    name: CONFIG.COLLEGE_NAME,
-    address: CONFIG.COLLEGE_ADDRESS,
-  },
+  location: { "@type": "Place", name: CONFIG.COLLEGE_NAME, address: CONFIG.COLLEGE_ADDRESS },
   organizer: { "@type": "CollegeOrUniversity", name: CONFIG.COLLEGE_NAME, url: CONFIG.COLLEGE_WEBSITE },
-  subEvent: ALL_EVENTS.map((e) => ({ "@type": "Event", name: e.name, description: e.description })),
+  subEvent: LEVELS.map((l) => ({ "@type": "Event", name: l.name, description: l.kind })),
+  offers: { "@type": "Offer", availability: "https://schema.org/InStock", price: "0", priceCurrency: "INR", url: CONFIG.GOOGLE_FORM_URL },
+  award: PRIZES.map((p) => `${p.position}: ${p.amount} ${p.extra}`),
 };
 
 export default function Home() {
@@ -44,8 +43,9 @@ export default function Home() {
         <Hero />
         <CountdownSection />
         <About />
-        <Events />
-        <Participation />
+        <Levels />
+        <Progression />
+        <Rules />
         <Registration />
         <Info />
         <FaqSection />
