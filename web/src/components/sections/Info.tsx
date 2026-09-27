@@ -18,7 +18,7 @@ const ICONS: Record<string, string> = {
 export default function Info() {
   return (
     <section id="info" className="chapter chapter--info" aria-labelledby="info-heading">
-      <ChapterTrigger clips={["c08_watch"]} mood={{ scrim: [0.3, 0.45], embers: [0.7, 0.45], heat: [0.55, 0.4] }} />
+      <ChapterTrigger clips={["c08_watch"]} mood={{ scrim: [0.35, 0.5], embers: [0.6, 0.45], heat: [0.5, 0.4] }} hold={0.85} />
       <div className="container">
         <ChapterLabel id="info" />
         <SectionHeading id="info-heading" label={INFO.label} a={INFO.titleA} b={INFO.titleB} />

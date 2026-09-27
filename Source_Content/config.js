@@ -1,5 +1,5 @@
 // ============================================================
-// STACK AND LEVEL @ TECHNOFEST 2026 — CENTRALIZED CONFIGURATION
+// DEPARTMENT OF CSE @ TECHNOFEST-3.0 2026 — CENTRALIZED CONFIGURATION
 // Edit this file to update all site-wide settings
 // ============================================================
 
@@ -8,16 +8,16 @@ const CONFIG = {
   GOOGLE_FORM_URL: "https://forms.gle/BSXYKUSRFYHpS4iA9",
 
   // ── Event Info ────────────────────────────────────────────
-  EVENT_NAME: "Stack and Level",
-  EVENT_DISPLAY_TITLE: "Stackernaut",          // the big hero wordmark
-  FEST_NAME: "Technofest 2026",
+  FEST_NAME: "Technofest-3.0 2026",
+  FEST_SHORT: "Technofest 3.0",
   DEPARTMENT: "Department of CSE",
+  DEPARTMENT_FULL: "Computer Science and Engineering",
+  SITE_TITLE: "CSE",                            // the big hero wordmark
+  SITE_SUBTITLE: "Technofest-3.0 2026",
   EVENT_DATE: "2026-09-30T00:00:00",   // ISO 8601 — local time
   EVENT_DATE_DISPLAY: "30 September 2026",
-  EVENT_TAGLINE: "Debug it. Rebuild it. Buzz for it.",
-  EVENT_TYPE: "Technical Event",
-  EVENT_LEVELS: 3,
-  TEAM_SIZE: "1 to 4 members",
+  EVENT_TAGLINE: "Three events. One department.",
+  EVENT_TYPE: "Technical + Non-Technical",
   REGISTRATION_MODE: "Spot registration at the venue",
   VENUE_ROOMS: "Lab 1 and Lab 2",
 
@@ -33,7 +33,7 @@ const CONFIG = {
   TIMING: "TO BE ANNOUNCED",
   REGISTRATION_DEADLINE: "TO BE ANNOUNCED",
   REGISTRATION_FEE: "TO BE ANNOUNCED",
-  PRIZE_POOL: "₹3,250 + certificates",
+  PRIZE_POOL: "₹3,250 + certificates (Stack and Level)",
 
   // ── Social Media ──────────────────────────────────────────
   SOCIAL: {

@@ -25,8 +25,19 @@ page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
 page.on("pageerror", (e) => errors.push(String(e)));
 page.on("requestfailed", (r) => !r.url().includes("/media/") && errors.push(`request failed: ${r.url()}`));
 
-await page.goto(url, { waitUntil: "networkidle2" });
-await new Promise((r) => setTimeout(r, 6000)); // opening sequence
+await page.goto(url, { waitUntil: "domcontentloaded" });
+// The CSE boot screen should cover the page, then clear itself.
+await new Promise((r) => setTimeout(r, 700));
+const bootVisible = await page.evaluate(() => {
+  const p = document.querySelector(".preloader");
+  return p ? { present: true, done: p.classList.contains("is-done"), text: p.innerText.replace(/\s+/g, " ").slice(0, 90) } : { present: false };
+});
+await page.screenshot({ path: resolve(outDir, `${tag}-boot.jpg`), type: "jpeg", quality: 75 });
+await new Promise((r) => setTimeout(r, 6000)); // boot + opening sequence
+const bootCleared = await page.evaluate(() => {
+  const p = document.querySelector(".preloader");
+  return !p || p.classList.contains("is-done") || getComputedStyle(p).opacity === "0";
+});
 
 const settle = () =>
   page.evaluate(async () => {
@@ -45,12 +56,13 @@ const shots = [
   ["hero", 0.7],
   ["countdown", 0.55],
   ["about", 0.4],
-  ["levels", 0.06],
-  ["levels", 0.4],
-  ["levels", 0.75],
-  ["progression", 0.45],
-  ["progression", 0.8],
-  ["rules", 0.55],
+  ["events", 0.06],
+  ["events", 0.6],
+  ["stack-and-level", 0.12],
+  ["stack-and-level", 0.55],
+  ["the-reckoning", 0.3],
+  ["chill-flex", 0.3],
+  ["rules", 0.5],
   ["registration", 0.6],
   ["info", 0.6],
   ["faq", 0.5],
@@ -89,26 +101,31 @@ for (const [id, f] of shots) {
 
 // ---- interaction checks ------------------------------------------------------
 const checks = {};
-await page.evaluate(() => document.getElementById("levels").scrollIntoView());
+await page.evaluate(() => document.getElementById("stack-and-level").scrollIntoView());
 await new Promise((r) => setTimeout(r, 800));
-// keyboard: focus a card, Enter opens, Escape closes, focus restored
-await page.focus(".level__more");
-await page.keyboard.press("Enter");
-await new Promise((r) => setTimeout(r, 700));
-checks.modalOpensOnEnter = await page.evaluate(() => document.querySelector("dialog.modal").open);
-checks.modalFocus = await page.evaluate(() => document.activeElement?.getAttribute("aria-label"));
-await page.screenshot({ path: resolve(outDir, `${tag}-modal.jpg`), type: "jpeg", quality: 75 });
-await page.keyboard.press("Tab");
-await page.keyboard.press("Tab");
-await page.keyboard.press("Tab");
-checks.focusStaysInModal = await page.evaluate(() => !!document.activeElement?.closest("dialog.modal"));
-await page.keyboard.press("Escape");
-await new Promise((r) => setTimeout(r, 500));
-checks.modalClosesOnEscape = await page.evaluate(() => !document.querySelector("dialog.modal").open);
-checks.focusRestored = await page.evaluate(() => document.activeElement?.classList.contains("level__more"));
-checks.scrollUnlocked = await page.evaluate(() => !document.body.classList.contains("scroll-locked"));
+// rounds accordion: keyboard toggle + content stays in the DOM
+  const roundSummary = await page.$(".round__summary");
+  await roundSummary.focus();
+  const roundStart = await page.evaluate(() => document.querySelector(".round").open);
+  await page.keyboard.press("Enter");
+  await new Promise((r) => setTimeout(r, 400));
+  const afterFirst = await page.evaluate(() => document.querySelector(".round").open);
+  await page.keyboard.press("Enter");
+  await new Promise((r) => setTimeout(r, 400));
+  const afterSecond = await page.evaluate(() => document.querySelector(".round").open);
+  checks.roundToggles = {
+    firstOpenByDefault: roundStart,
+    togglesOnEnter: afterFirst !== roundStart && afterSecond === roundStart,
+    // closed rounds must still ship their rules for no-JS readers and crawlers
+    rulesInClosedRound: await page.evaluate(() => {
+      const closed = [...document.querySelectorAll(".round")].find((d) => !d.open);
+      return closed ? closed.querySelectorAll(".ruleslist li").length : 0;
+    }),
+  };
+  checks.allRulesInDom = await page.evaluate(() => document.querySelectorAll(".ruleslist li").length);
+  await page.screenshot({ path: resolve(outDir, `${tag}-rounds.jpg`), type: "jpeg", quality: 75 });
 
-// FAQ accordion (single open)
+  // FAQ accordion (single open)
 checks.faq = await page.evaluate(async () => {
   const btns = [...document.querySelectorAll(".faq__q button")];
   btns[0].click();
@@ -175,5 +192,5 @@ checks.resources = await page.evaluate(() => {
   };
 });
 
-console.log(JSON.stringify({ tag, report, checks, errors: [...new Set(errors)].slice(0, 20) }, null, 2));
+console.log(JSON.stringify({ tag, boot: { ...bootVisible, cleared: bootCleared }, report, checks, errors: [...new Set(errors)].slice(0, 20) }, null, 2));
 await browser.close();

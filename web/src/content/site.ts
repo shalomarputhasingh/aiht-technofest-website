@@ -1,39 +1,50 @@
-// Stack and Level content contract.
-// Rules/levels/FAQ data is extracted verbatim from Source_Content/config.js +
-// stack-and-level.js (see scripts/extract-content.mjs), which in turn transcribe
-// the official .docx. Page copy below is written for the site and audited against
-// the document by scripts/audit-content.mjs.
+// Department of CSE @ Technofest-3.0 2026 — content contract.
+// Event/rule data is extracted verbatim from Source_Content/config.js +
+// cse-events.js (see scripts/extract-content.mjs), which transcribe the official
+// .docx. Page copy below is written for the site and audited against the
+// document by scripts/audit-content.mjs.
 import source from "./source.json";
 
-export type Level = {
+export type Game = { name: string; note: string; rules: string[] };
+export type Round = { number: string | null; name: string; kind: string | null; rules: string[]; games: Game[] };
+export type Prize = { place: string; position: string; amount: string; extra: string };
+export type CseEvent = {
   id: string;
-  number: string;
   name: string;
-  kind: string;
+  category: "Technical" | "Non-Technical";
   svgIcon: string;
   tagline: string;
-  duration: string;
-  format: string;
-  qualifier: string;
-  rules: string[];
-  scoring: { label: string; text: string }[];
+  summary: string;
+  teamSize: string;
+  facts: { label: string; value: string }[];
+  generalRules: string[];
+  rounds: Round[];
+  scoring: { level: string; items: { label: string; text: string }[] }[];
+  regulations: string[];
+  conduct: string[];
+  winning: string[];
+  prizes: Prize[] | null;
+  progression: { stage: string; teams: string; detail: string }[] | null;
 };
 
 export const CONFIG = source.CONFIG;
-export const LEVELS = source.LEVELS as Level[];
-export const GENERAL_RULES = source.GENERAL_RULES as string[];
-export const REGULATIONS = source.REGULATIONS as string[];
-export const CODE_OF_CONDUCT = source.CODE_OF_CONDUCT as string[];
-export const WINNING = source.WINNING as string[];
-export const PRIZES = source.PRIZES as { place: string; position: string; amount: string; extra: string }[];
-export const PROGRESSION = source.PROGRESSION as { stage: string; teams: string; detail: string }[];
+export const EVENTS = source.EVENTS as CseEvent[];
+export const PRIZE_NOTE = source.PRIZE_NOTE as string;
 /** FAQ answers carry trusted inline markup (<strong>) from the source file. */
 export const FAQ_DATA = source.FAQ as { q: string; a: string }[];
+
+export const TOTALS = {
+  events: EVENTS.length,
+  rounds: EVENTS.reduce((n, e) => n + e.rounds.length, 0),
+  games: EVENTS.reduce((n, e) => n + e.rounds.reduce((m, r) => m + r.games.length, 0), 0),
+  technical: EVENTS.filter((e) => e.category === "Technical").length,
+  nonTechnical: EVENTS.filter((e) => e.category === "Non-Technical").length,
+};
 
 export const NAV_LINKS = [
   { href: "#hero", label: "Home" },
   { href: "#about", label: "The Brief" },
-  { href: "#levels", label: "Levels" },
+  { href: "#events", label: "Events" },
   { href: "#rules", label: "Rules" },
   { href: "#faq", label: "FAQ" },
 ];
@@ -41,8 +52,8 @@ export const NAV_LINKS = [
 export const MOBILE_NAV_LINKS = [
   { href: "#hero", label: "Home" },
   { href: "#about", label: "The Brief" },
-  { href: "#levels", label: "Levels" },
-  { href: "#rules", label: "Rules" },
+  { href: "#events", label: "Events" },
+  ...EVENTS.map((e) => ({ href: `#${e.id}`, label: e.name })),
   { href: "#registration", label: "Register" },
   { href: "#faq", label: "FAQ" },
 ];
@@ -50,8 +61,7 @@ export const MOBILE_NAV_LINKS = [
 export const FOOTER_LINKS = [
   { href: "#hero", label: "Home" },
   { href: "#about", label: "The Brief" },
-  { href: "#levels", label: "The Three Levels" },
-  { href: "#progression", label: "Prizes" },
+  ...EVENTS.map((e) => ({ href: `#${e.id}`, label: e.name })),
   { href: "#rules", label: "Rules & Conduct" },
   { href: "#registration", label: "Register" },
   { href: "#faq", label: "FAQ" },
@@ -65,7 +75,7 @@ export const TOP_BAR = {
   websiteLabel: "aiht.ac.in",
 };
 
-export const NAV_BRAND = { tag: `${CONFIG.FEST_NAME} • ${CONFIG.DEPARTMENT}`, logo: "STACK", year: "ERNAUT" };
+export const NAV_BRAND = { tag: `${CONFIG.FEST_NAME} • ${CONFIG.DEPARTMENT}`, logo: "CSE", year: "3.0" };
 
 export const MOBILE_NAV_COLLEGE = {
   name: CONFIG.COLLEGE_NAME,
@@ -74,91 +84,120 @@ export const MOBILE_NAV_COLLEGE = {
 
 export const HERO = {
   hostPills: [CONFIG.FEST_NAME, CONFIG.DEPARTMENT, CONFIG.EVENT_TYPE],
-  eyebrow: `${CONFIG.EVENT_NAME} — Rules & Regulations`,
+  eyebrow: `${CONFIG.DEPARTMENT_FULL} — Rules & Regulations`,
   telemetry: [
-    ["EVENT", CONFIG.EVENT_NAME],
-    ["LEVELS", "03"],
-    ["TEAM", CONFIG.TEAM_SIZE],
+    ["DEPT", "CSE"],
+    ["EVENTS", String(TOTALS.events).padStart(2, "0")],
+    ["GAMES", String(TOTALS.games)],
     ["DATE", "30.09.2026"],
   ] as [string, string][],
-  titleA: "STACK",
-  titleB: "ERNAUT",
-  official: CONFIG.EVENT_NAME,
+  titleA: "CSE",
+  titleB: "3.0",
+  official: CONFIG.DEPARTMENT_FULL,
   tagline: CONFIG.EVENT_TAGLINE,
-  altTagline: "Bug Bounty · Sight Unseen · Buzz or Bust",
+  altTagline: EVENTS.map((e) => e.name).join(" · "),
   date: CONFIG.EVENT_DATE_DISPLAY,
   description:
-    "Three levels, one device, and difficulty that climbs with every round. Fix ten broken programs against the clock, rebuild a website you only saw once, then out-buzz the teams still standing.",
+    "One technical gauntlet and two non-technical brawls, run by the Department of Computer Science and Engineering. Debug under the clock, survive ten party games, or out-buzz the room on Tamil cinema.",
   ctaRegister: "Pre-register",
-  ctaExplore: "See the levels",
+  ctaExplore: "See the events",
 };
 
 export const COUNTDOWN = {
-  label: `Countdown to ${CONFIG.EVENT_NAME}`,
-  live: "🎉 STACK AND LEVEL IS LIVE!",
+  label: `Countdown to ${CONFIG.FEST_NAME}`,
+  live: "🎉 TECHNOFEST 3.0 IS LIVE!",
   units: ["Days", "Hours", "Minutes", "Seconds"],
 };
 
 export const ABOUT = {
   label: "The Brief",
-  titleA: "What is",
-  titleB: "Stack and Level",
+  titleA: "What the CSE",
+  titleB: "Department Runs",
   paragraphs: [
     [
-      { strong: "Stack and Level" },
-      " is the ",
-      { strong: `${CONFIG.DEPARTMENT} technical event at ${CONFIG.FEST_NAME}` },
-      ". The event consists of three levels, gradually increasing in difficulty: Bug Bounty, Sight Unseen and Buzz or Bust. Twenty teams start in the labs. Three walk away as winners.",
+      "The ",
+      { strong: CONFIG.DEPARTMENT_FULL },
+      ` is running ${TOTALS.events} events at ${CONFIG.FEST_NAME}: `,
+      { strong: EVENTS.map((e) => e.name).join(", ") },
+      ". One is technical, two are not, and all of them are decided on the day.",
     ],
     [
-      "Participants compete in teams of 1 to 4 members. A laptop is optional — teams may use the lab computer provided, and each team competes on one device only. Everything else you need to know is on this page, straight from the rulebook.",
+      `Between them there are ${TOTALS.rounds} rounds and ${TOTALS.games} individual games. Registration is spot registration only, at the venue — pre-register online if you want us to keep a slot. Every rule for every game is on this page, straight from the rulebook.`,
     ],
   ] as (string | { strong: string })[][],
   stats: [
-    { value: 3, label: "Levels" },
-    { value: 20, label: "Teams at the start" },
-    { value: 4, label: "Members per team, max" },
-    { value: 3, label: "Winning teams" },
+    { value: TOTALS.events, label: "Events" },
+    { value: TOTALS.rounds, label: "Rounds" },
+    { value: TOTALS.games, label: "Games" },
+    { value: 1, label: "Day of Excitement" },
   ],
   highlights: [
     { title: "Debug", text: "Ten broken programs across five languages, and only ten minutes on the clock." },
     { title: "Rebuild", text: "One look at a live website, then rebuild it from memory with an AI tool." },
-    { title: "Buzz", text: "Hit the buzzer first, code offline, and prove the output in front of the judges." },
-    { title: "Win", text: "Scores carry to the final level, where the top three teams take the prizes." },
+    { title: "Survive", text: "Balloons, chopsticks, QR codes and bottle flips — ten games, two players, one winner." },
+    { title: "Buzz", text: "Blurred movie stills, blindfolded jigsaws and face-to-face betting on Tamil cinema." },
   ],
 };
 
-export const LEVELS_SECTION = {
-  label: "The Three Games",
-  titleA: "Three Levels,",
-  titleB: "One Run",
-  subtitle:
-    "Every level is harder than the last, and only the top teams carry through. Open a level for its full rules and scoring.",
-  viewDetails: "Full rules",
-  rulesLabel: "How it runs",
-  scoringLabel: "Scoring",
+export const EVENTS_SECTION = {
+  label: "The Line-up",
+  titleA: `${TOTALS.events} Events,`,
+  titleB: "One Department",
+  subtitle: "One technical, two non-technical. Pick your fight — full rules for each are below.",
+  viewRules: "Read the rules",
+  roundsLabel: "Rounds",
+  gamesLabel: "Games",
 };
 
-export const PROGRESSION_SECTION = {
-  label: "Qualification",
-  titleA: "From Twenty Teams",
-  titleB: "To Three",
-  subtitle: "Teams are cut at every level. This is the whole run, from the first lab to the final buzzer.",
-  prizesLabel: "The Prizes",
-  prizesTitleA: "What the Winners",
-  prizesTitleB: "Take Home",
+export const EVENT_PAGE = {
+  generalLabel: "General Rules",
+  roundsLabel: "Round Details",
+  scoringLabel: "Scoring Criteria",
+  regulationsLabel: "Rules & Regulations",
+  conductLabel: "Code of Conduct",
   winningLabel: "Winning",
+  prizesLabel: "Prizes",
+  progressionLabel: "Qualification",
+  prizesTba: PRIZE_NOTE,
 };
 
 export const RULES_SECTION = {
   label: "Before You Compete",
-  titleA: "Rules &",
-  titleB: "Conduct",
-  subtitle: "Read these before you arrive. Breaking them costs points, or the whole event.",
+  titleA: "Common",
+  titleB: "Ground",
+  subtitle: "These apply across every CSE event. Each event adds its own rules on top.",
   groups: [
-    { key: "general", title: "General Rules", icon: "list", items: GENERAL_RULES },
-    { key: "regulations", title: "Rules & Regulations", icon: "shield", items: REGULATIONS },
-    { key: "conduct", title: "Code of Conduct", icon: "handshake", items: CODE_OF_CONDUCT },
+    {
+      key: "conduct",
+      title: "Code of Conduct",
+      icon: "handshake",
+      items: [
+        "Respect event coordinators, fellow participants, and judges.",
+        "Fair play is mandatory; copying, sharing answers or any unethical behaviour will lead to disqualification.",
+        "Participants must follow the instructions given by the event coordinators throughout the event.",
+      ],
+    },
+    {
+      key: "general",
+      title: "Across All Events",
+      icon: "list",
+      items: [
+        "Participants must complete each challenge within the given time limit.",
+        "All participants must follow the specific rules provided for each game.",
+        "Any violation of the rules may result in disqualification.",
+        "The decision of the event coordinators and judges will be final.",
+      ],
+    },
+    {
+      key: "registration",
+      title: "Getting In",
+      icon: "shield",
+      items: [
+        "Registration is spot registration only, at the venue.",
+        "Team sizes differ per event: Stack and Level 1 to 4 members, The Reckoning 2 members, Chill Flex 2–4 members.",
+        "Pre-registering online is optional, and helps the coordinators plan slots.",
+      ],
+    },
   ],
 };
 
@@ -170,16 +209,18 @@ export const REGISTRATION = {
   steps: [
     {
       number: "STEP 01",
-      title: "Form Your Team",
-      text: ["Participants compete in teams of 1 to 4 members. Pick your team before you reach the lab — you can also enter alone."],
+      title: "Pick Your Event",
+      text: [
+        `All ${TOTALS.events} events run on the same day. Read the rules, then decide whether you are debugging, surviving the games, or answering on cinema.`,
+      ],
     },
     {
       number: "STEP 02",
-      title: "Pre-register Online",
+      title: "Form Your Team",
       text: [
-        "Hit ",
-        { strong: "Pre-register" },
-        ` and fill the ${CONFIG.FEST_NAME} form. This is optional, but it tells us you are coming.`,
+        "Team sizes differ per event: ",
+        { strong: "Stack and Level 1 to 4, The Reckoning 2, Chill Flex 2–4" },
+        ". Sort your team before you reach the venue.",
       ],
     },
     {
@@ -187,11 +228,11 @@ export const REGISTRATION = {
       title: "Register at the Venue",
       text: [
         { strong: "Registration is spot registration only, at the venue." },
-        " Confirm your team on the day, keep your Team ID safe, and bring a laptop if you want one — it is optional.",
+        " Pre-register online if you want a slot held, keep your Team ID safe, and turn up ready.",
       ],
     },
   ] as { number: string; title: string; text: (string | { strong: string })[] }[],
-  cta: `Pre-register for ${CONFIG.EVENT_NAME}`,
+  cta: `Pre-register for ${CONFIG.FEST_SHORT}`,
 };
 
 export const INFO = {
@@ -200,11 +241,11 @@ export const INFO = {
   titleB: "Information",
   cards: [
     { key: "date", label: "Date", value: CONFIG.EVENT_DATE_DISPLAY },
-    { key: "event", label: "Event", value: CONFIG.EVENT_NAME },
-    { key: "type", label: "Type", value: CONFIG.EVENT_TYPE },
-    { key: "department", label: "Organised by", value: CONFIG.DEPARTMENT },
-    { key: "team", label: "Team Size", value: CONFIG.TEAM_SIZE },
-    { key: "rooms", label: "Rounds Run In", value: CONFIG.VENUE_ROOMS },
+    { key: "event", label: "Fest", value: CONFIG.FEST_NAME },
+    { key: "department", label: "Organised by", value: CONFIG.DEPARTMENT_FULL },
+    { key: "type", label: "Events", value: `${TOTALS.technical} Technical + ${TOTALS.nonTechnical} Non-Technical` },
+    { key: "team", label: "Team Size", value: "Varies by event (1–4)" },
+    { key: "rooms", label: "Stack and Level Runs In", value: CONFIG.VENUE_ROOMS },
     { key: "registration", label: "Registration", value: CONFIG.REGISTRATION_MODE },
     { key: "prize", label: "Prize Pool", value: CONFIG.PRIZE_POOL },
     { key: "venue", label: "Venue", value: "AIHT, OMR, Kazhipattur, Chennai – 603103" },
@@ -217,18 +258,18 @@ export const INFO = {
 export const FAQ_SECTION = { label: "Got Questions?", titleA: "Frequently Asked", titleB: "Questions" };
 
 export const FINAL_CTA = {
-  heading: ["Ten Minutes.", "Ten Bugs."],
-  sub: "Think you can clear all three?",
-  body: "Twenty teams walk into the labs. Five reach the buzzer. Three take the prizes. Form your team, pre-register, and show up ready to debug.",
+  heading: ["Three Events.", "One Day."],
+  sub: "Which one are you walking into?",
+  body: `${TOTALS.games} games across ${TOTALS.rounds} rounds, run by the Department of Computer Science and Engineering. Form your team, pre-register, and show up ready.`,
   cta: "Pre-register",
   dateBadge: CONFIG.EVENT_DATE_DISPLAY,
 };
 
 export const FOOTER = {
-  logo: "STACK AND LEVEL",
+  logo: "CSE · TECHNOFEST 3.0",
   tagline: CONFIG.EVENT_TAGLINE,
   college: CONFIG.COLLEGE_NAME,
-  collegeLines: [`${CONFIG.DEPARTMENT} • ${CONFIG.FEST_NAME}`, "An Autonomous Institution"],
+  collegeLines: [`${CONFIG.DEPARTMENT_FULL} • ${CONFIG.FEST_NAME}`, "An Autonomous Institution"],
   address: "OMR, Kazhipattur, Chennai – 603103",
   quickLinksTitle: "Quick Links",
   contactTitle: "Contact & Links",
@@ -239,11 +280,26 @@ export const FOOTER = {
     { kind: "web", label: "www.aiht.ac.in", href: CONFIG.COLLEGE_WEBSITE, external: true },
     { kind: "facebook", label: "Facebook", href: "https://www.facebook.com/aihtofficial", external: true },
   ],
-  copyright: `© 2026 ${CONFIG.EVENT_NAME} — ${CONFIG.FEST_NAME}, ${CONFIG.COLLEGE_NAME}. All rights reserved.`,
+  copyright: `© 2026 ${CONFIG.DEPARTMENT_FULL} — ${CONFIG.FEST_NAME}, ${CONFIG.COLLEGE_NAME}. All rights reserved.`,
   accreditation: "Approved by AICTE | Affiliated to Anna University, Chennai | ISO 9001:2008 Certified | Accredited by NBA",
 };
 
 export const REGISTER_PENDING = {
   title: "Pre-registration opening soon!",
   body: "The form link will be active shortly. Spot registration is always available at the venue.",
+};
+
+/** Boot sequence for the loading screen — CSE flavoured, purely decorative. */
+export const BOOT = {
+  host: "aiht.ac.in",
+  user: "technofest",
+  lines: [
+    { cmd: "ssh technofest@aiht.ac.in", out: "Connected · Department of Computer Science and Engineering" },
+    { cmd: "cd /dept/cse/technofest-3.0", out: "3 events · 10 rounds · 15 games" },
+    { cmd: "make all", out: "stack-and-level.o  the-reckoning.o  chill-flex.o" },
+    { cmd: "./technofest --start", out: "Spot registration open at the venue" },
+  ],
+  compiling: "compiling technofest-3.0",
+  ready: "BUILD SUCCESSFUL",
+  skip: "Skip",
 };

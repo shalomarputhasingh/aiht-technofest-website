@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Big_Shoulders, JetBrains_Mono, Manrope } from "next/font/google";
-import { CONFIG, LEVELS } from "@/content/site";
+import { CONFIG, EVENTS } from "@/content/site";
 import "./globals.css";
 
 const display = Big_Shoulders({
@@ -26,16 +26,16 @@ const mono = JetBrains_Mono({
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
-// Copy mirrors the <head> of Source_Content/index.html.
+// Derived from the event data, so metadata follows the rulebook.
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: `${CONFIG.EVENT_NAME} | ${CONFIG.FEST_NAME} — ${CONFIG.COLLEGE_SHORT}`,
-  description: `${CONFIG.EVENT_NAME} is the ${CONFIG.DEPARTMENT} technical event at ${CONFIG.FEST_NAME}, ${CONFIG.COLLEGE_NAME}, on ${CONFIG.EVENT_DATE_DISPLAY}. Three levels — ${LEVELS.map((l) => l.name).join(", ")} — for teams of ${CONFIG.TEAM_SIZE}.`,
+  title: `${CONFIG.DEPARTMENT} | ${CONFIG.FEST_NAME} — ${CONFIG.COLLEGE_SHORT}`,
+  description: `${CONFIG.DEPARTMENT_FULL} events at ${CONFIG.FEST_NAME}, ${CONFIG.COLLEGE_NAME}, on ${CONFIG.EVENT_DATE_DISPLAY}: ${EVENTS.map((e) => e.name).join(", ")}. Full rules for every round and game.`,
   keywords: [
-    CONFIG.EVENT_NAME,
-    CONFIG.EVENT_DISPLAY_TITLE,
-    ...LEVELS.map((l) => l.name),
+    ...EVENTS.map((e) => e.name),
+    CONFIG.DEPARTMENT_FULL,
     CONFIG.FEST_NAME,
+    "Technofest 3.0",
     "AIHT",
     CONFIG.COLLEGE_NAME,
     "debugging contest",
@@ -44,19 +44,19 @@ export const metadata: Metadata = {
     "Chennai",
     "OMR",
   ],
-  authors: [{ name: "Anand Institute of Higher Technology — Technofest 2026" }],
+  authors: [{ name: `${CONFIG.COLLEGE_NAME} — ${CONFIG.DEPARTMENT_FULL}` }],
   robots: { index: true, follow: true },
   openGraph: {
     type: "website",
-    title: `${CONFIG.EVENT_NAME} — ${CONFIG.EVENT_TAGLINE}`,
-    description: `Three levels at ${CONFIG.FEST_NAME}: Bug Bounty, Sight Unseen and Buzz or Bust. Teams of ${CONFIG.TEAM_SIZE}, ${CONFIG.EVENT_DATE_DISPLAY}. ${CONFIG.PRIZE_POOL}.`,
-    siteName: `${CONFIG.EVENT_NAME} — ${CONFIG.FEST_NAME}`,
-    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: CONFIG.EVENT_NAME }],
+    title: `${CONFIG.DEPARTMENT_FULL} — ${CONFIG.FEST_NAME}`,
+    description: `${EVENTS.map((e) => e.name).join(" · ")} — ${CONFIG.EVENT_DATE_DISPLAY} at ${CONFIG.COLLEGE_NAME}. Spot registration at the venue.`,
+    siteName: `${CONFIG.DEPARTMENT} — ${CONFIG.FEST_NAME}`,
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: CONFIG.FEST_NAME }],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${CONFIG.EVENT_NAME} | ${CONFIG.EVENT_TAGLINE}`,
-    description: `${CONFIG.DEPARTMENT} technical event at ${CONFIG.FEST_NAME} — ${CONFIG.EVENT_DATE_DISPLAY}.`,
+    title: `${CONFIG.DEPARTMENT} | ${CONFIG.FEST_NAME}`,
+    description: `${EVENTS.length} events — ${EVENTS.map((e) => e.name).join(", ")} — on ${CONFIG.EVENT_DATE_DISPLAY}.`,
     images: ["/og-image.jpg"],
   },
 };

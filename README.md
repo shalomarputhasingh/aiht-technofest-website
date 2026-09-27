@@ -1,6 +1,6 @@
-# Stack and Level — AIHT Technofest 2026
+# Department of CSE — AIHT Technofest-3.0 2026
 
-A cinematic, scroll-driven website for **Stack and Level**, the Department of CSE technical event at **Technofest 2026**, Anand Institute of Higher Technology (AIHT), Chennai — 30 September 2026.
+A cinematic, scroll-driven website for the **Department of Computer Science and Engineering** events at **Technofest-3.0 2026**, Anand Institute of Higher Technology (AIHT), Chennai — 30 September 2026. Three events: Stack and Level, The Reckoning and Chill Flex.
 
 ```
 web/             Next.js 16 app (the website): see web/README.md
@@ -21,7 +21,7 @@ npm start        # http://localhost:3000
 
 ## Updating event details
 
-Edit `Source_Content/config.js` (dates, venue, contacts) or `Source_Content/stack-and-level.js` (levels, rules, prizes, FAQ). Then run:
+Edit `Source_Content/config.js` (dates, venue, contacts) or `Source_Content/cse-events.js` (events, rounds, games, rules, prizes, FAQ). Then run:
 
 ```bash
 cd web
