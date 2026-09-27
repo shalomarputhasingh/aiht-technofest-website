@@ -26,6 +26,23 @@ If `GOOGLE_FORM_URL` is empty, Pre-register buttons show a "pre-registration ope
 
 `hero · countdown · about · events · stack-and-level · the-reckoning · chill-flex · rules · registration · info · faq · final-cta`
 
+Each section owns exactly one clip of the film, in order — no shot is reused:
+
+| Section | Clip | Beat |
+|---|---|---|
+| hero | c01 | darkness → embers → fire climbs → walk |
+| countdown | c02 | approaches the parked chopper |
+| about | c03 | mounts, starts the engine |
+| events | c04 | wheels, exhaust and chain ignite |
+| stack-and-level | c05 | launches through the abandoned city |
+| the-reckoning | c06 | abandoned city → futuristic city |
+| chill-flex | c07 | slows, stops, dismounts |
+| rules | c08 | camera orbits the standing rider |
+| registration | c09 | remounts, fire builds |
+| info | c10 | out onto the dark highway |
+| faq | c11 | stops and gets off — the quiet beat |
+| final-cta | c12 | push into the skull → black → title card |
+
 Each event gets its own full rulebook section. Rounds use `<details>` so the page stays scannable while every rule stays in the HTML (readable with JS off and by crawlers). A CSE-themed boot screen (`components/ui/Preloader.tsx`) covers the first load: an ssh/make sequence for the department, a progress bar tied to real loading, then the CSE 3.0 wordmark. It is hidden entirely without JS, self-clears via a CSS animation if the bundle fails, shows once per tab, and is skippable with the button, Escape, a click or a scroll.
 
 ## How it works

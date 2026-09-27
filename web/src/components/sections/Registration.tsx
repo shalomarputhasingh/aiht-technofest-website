@@ -6,7 +6,7 @@ import ChapterLabel, { SectionHeading } from "./ChapterLabel";
 export default function Registration() {
   return (
     <section id="registration" className="chapter chapter--registration" aria-labelledby="reg-heading">
-      <ChapterTrigger clips={["c08_watch"]} mood={{ scrim: [0.5, 0.35], embers: [0.7, 0.8], heat: [0.5, 0.6] }} hold={0.6} />
+      <ChapterTrigger clips={["c09_return"]} mood={{ scrim: [0.45, 0.35], embers: [0.8, 1.1], heat: [0.55, 0.9] }} />
       <div className="container registration">
         <div className="registration__head">
           <ChapterLabel id="registration" />

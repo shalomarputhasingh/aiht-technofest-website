@@ -9,13 +9,13 @@ import RegisterLink, { ArrowIcon } from "@/components/ui/RegisterLink";
 import { CalendarIcon } from "./Hero";
 
 // Beat sheet across the pinned section's scroll progress (0..1).
-const FILM_END = 0.8; // c09 → c10 → c11 → c12 play across [0, FILM_END]
+const FILM_END = 0.8; // the skull push-in plays across [0, FILM_END]
 const BLACK = [0.8, 0.86];
 const TITLE = [0.87, 0.95];
 const BEATS: [number, number][] = [
-  [0.02, 0.22], // "Ready to Take the Challenge?"  — the return / remount
-  [0.25, 0.42], // "Your idea. Your skill. Your moment." — dark highway
-  [0.45, 0.6], //  body copy — the stop
+  [0.02, 0.22], // heading — the push-in begins
+  [0.25, 0.42], // sub — closer
+  [0.45, 0.6], //  body copy — extreme close-up
 ];
 
 const fade = (p: number, [a, b]: [number, number]) => {
@@ -50,7 +50,7 @@ export default function FinalRide() {
       return () => st.kill();
     }
 
-    const clips = ["c09_return", "c10_highway", "c11_highway_stop", "c12_skull"] as const;
+    const clips = ["c12_skull"] as const;
     const title = titleRef.current;
 
     const apply = (p: number) => {

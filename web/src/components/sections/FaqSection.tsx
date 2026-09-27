@@ -6,8 +6,8 @@ import Faq from "./Faq";
 export default function FaqSection() {
   return (
     <section id="faq" className="chapter chapter--faq" aria-labelledby="faq-heading">
-      {/* The silence: hold the last frame of the watch shot, dim the fire. */}
-      <ChapterTrigger clips={["c08_watch"]} mood={{ scrim: [0.55, 0.6], embers: [0.35, 0.3], heat: [0.35, 0.3] }} hold={1} />
+      {/* The silence: he slows, stops and gets off the bike. */}
+      <ChapterTrigger clips={["c11_highway_stop"]} mood={{ scrim: [0.5, 0.6], embers: [0.6, 0.35], heat: [0.55, 0.35] }} />
       <div className="container faq-layout">
         <div className="faq-layout__head">
           <ChapterLabel id="faq" />
